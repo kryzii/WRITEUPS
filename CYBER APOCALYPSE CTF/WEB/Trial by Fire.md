@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/183ffdf6-66a1-4ed1-8899-1ddcd9a26a65)## Trial by Fire
+## Trial by Fire
 
 Category: Web  
 
