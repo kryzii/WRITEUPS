@@ -79,7 +79,7 @@ response = requests.post(url, headers=headers, data=encoded_xml)
 print(f"Status Code: {response.status_code}")
 print(f"Response: {response.text}")
 ```
-Sent to /convert endpoint.
+Sent to `/convert` endpoint.
 
 Triggered bot to visit uploaded XML file.
 
