@@ -6,6 +6,7 @@ Hint: Hardcoded in source code.
 
 ## Solution
 Check source code → Found hardcoded password.
+
 ![image](https://github.com/user-attachments/assets/b2b61460-18a7-4f82-91a5-9c1b3e81709d)
 ```js
 if (user == "godam" && pass == "Sup3rSecr3t4ndS3cur3P@s$W0rD")
