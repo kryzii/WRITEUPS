@@ -12,4 +12,6 @@ Check source code → Found hardcoded password.
 if (user == "godam" && pass == "Sup3rSecr3t4ndS3cur3P@s$W0rD")
 ```
 ![image](https://github.com/user-attachments/assets/d81bbdec-17be-45b4-b2b5-0aaa17927723)
+```
 SKR{N3ver_Us3_J@v4Scr1pT_F0r_Au7h3nt1c4t10n_0c62bd}
+```
