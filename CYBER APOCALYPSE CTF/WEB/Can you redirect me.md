@@ -23,6 +23,7 @@ if(url.hostname != "www.google.com"){
 ```
 
 ##Solution
+
 Use Google open redirect with /amp/
 
 ![image](https://github.com/user-attachments/assets/4059a7ef-e8db-4ef1-b45e-98d8de7ededa)
