@@ -22,7 +22,7 @@ if(url.hostname != "www.google.com"){
 }
 ```
 
-##Solution
+## Solution
 
 Use Google open redirect with /amp/
 
