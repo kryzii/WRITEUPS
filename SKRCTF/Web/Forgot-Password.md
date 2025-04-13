@@ -1,7 +1,4 @@
-# Forgot Password (SKRCTF)
-
-Category: Web  
-Points: 20 pts  
+![image](https://github.com/user-attachments/assets/205714b1-fd87-4b7a-83a8-98b990dd8891)
 
 ## Challenge
 Need to get flag from account.  
