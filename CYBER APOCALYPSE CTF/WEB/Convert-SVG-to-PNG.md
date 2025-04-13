@@ -88,5 +88,5 @@ Got flag in webhook.
 ![image](https://github.com/user-attachments/assets/de21b3ee-8fad-44ad-a694-a0de3a58f8a7)
 
 ```
-HTB{XS1_1n_F1l3_4nd_R3nd3r_1s_N0_J0k3}
+ACS{f2e394eabe06f5a4193c5ceab4beaeb4}
 ```
