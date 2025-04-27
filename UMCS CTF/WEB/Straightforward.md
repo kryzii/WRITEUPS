@@ -45,8 +45,11 @@ SQLite doesn’t handle this by default unless you use special locking or transa
 
 ## Exploit Steps
 ![image](https://github.com/user-attachments/assets/9a8a59c0-af40-4ced-ae57-3609dd62ba26)
+
 •	Register new account - get 1000 balance.
+
 •	Don’t claim the daily bonus 
+
 •	Spam /claim fast using Python multithreading. (Again, we need UNCOLLECTED DAILY BONUS jwt-token for this!)
 
 ![image](https://github.com/user-attachments/assets/548cf9f5-cbdf-4f72-83bd-3e253a1fb87e)
