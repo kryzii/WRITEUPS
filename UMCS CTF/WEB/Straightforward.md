@@ -38,7 +38,7 @@ especially for Flask + SQLite  you’ll find that this pattern can be risky if t
 Reference example: https://portswigger.net/web-security/race-conditions
 Here’s another way to do this via burp: https://medium.com/@mahakjaiswani888/race-condition-vulnerability-f92de47aa55c
 
-##Why This Can Be Exploited?
+## Why This Can Be Exploited?
 Since the code checks if claimed=1 first  then only after that it updates the balance and sets claimed=1
 there is a small window where I can spam multiple requests fast enough before the server saves claimed=1 to the database.
 SQLite doesn’t handle this by default unless you use special locking or transaction isolation which this code doesn’t have.
