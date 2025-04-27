@@ -50,7 +50,7 @@ SQLite doesn’t handle this by default unless you use special locking or transa
 
 •	Don’t claim the daily bonus 
 
-•	Spam /claim fast using Python multithreading. (Again, we need UNCOLLECTED DAILY BONUS jwt-token for this!)
+•	Spam **/claim** fast using Python multithreading. (Again, we need UNCOLLECTED DAILY BONUS jwt-token for this!)
 
 ![image](https://github.com/user-attachments/assets/548cf9f5-cbdf-4f72-83bd-3e253a1fb87e)
 Here’s the cracker.py :
@@ -82,7 +82,7 @@ print("Exploit completed. Check your balance on /dashboard.")
 ```
 ![image](https://github.com/user-attachments/assets/c81b0931-82d7-4a63-8d45-f8c946108e78)
 
-•	Simply refresh our web and finally, redeem flag at */buy_flag.*
+•	Simply refresh our web and finally, redeem flag at **/buy_flag.**
 
 ![image](https://github.com/user-attachments/assets/e8a40c47-8adc-4b48-b733-e158c6f8de4c) ![image](https://github.com/user-attachments/assets/bf280620-443a-4ca8-b9aa-e4cb008bedd7)
 
