@@ -35,7 +35,9 @@ db.commit()
 At first glance, I was like looks okay…
 But if you search online or check basic references about Race Condition on database 
 especially for Flask + SQLite  you’ll find that this pattern can be risky if the database doesn’t have locking mechanism or transaction isolation.
+
 Reference example: https://portswigger.net/web-security/race-conditions
+
 Here’s another way to do this via burp: https://medium.com/@mahakjaiswani888/race-condition-vulnerability-f92de47aa55c
 
 ## Why This Can Be Exploited?
