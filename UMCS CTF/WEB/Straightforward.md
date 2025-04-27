@@ -4,7 +4,9 @@
 ![image](https://github.com/user-attachments/assets/208f501c-21f0-45d4-ac6f-cd03939f0cf3) ![image](https://github.com/user-attachments/assets/b00a16b4-bfd9-4f8e-9f33-a536c6309b4e)
 
 **/register** - New user with 1000 balance. 
-**/claim **- +1000 bonus (1 per user). 
+
+**/claim** - +1000 bonus (1 per user). 
+
 **/buy_flag** - Need 3000 balance for flag
 
 ## What Actually Happened (My Mistake Story):
