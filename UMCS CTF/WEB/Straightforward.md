@@ -1,6 +1,6 @@
 ![image](https://github.com/user-attachments/assets/aed90ea8-d1de-4a71-a972-cdef13c48e7c)
 
-##How the app works:
+## How the app works:
 ![image](https://github.com/user-attachments/assets/208f501c-21f0-45d4-ac6f-cd03939f0cf3) ![image](https://github.com/user-attachments/assets/b00a16b4-bfd9-4f8e-9f33-a536c6309b4e)
 
 ```js
@@ -9,7 +9,7 @@
 /buy_flag - Need 3000 balance for flag
 ```
 
-##What Actually Happened (My Mistake Story):
+## What Actually Happened (My Mistake Story):
 Okay so at first  I thought this challenge was something about token or session attack. 
 I spent like 5-10 minutes trying to look at the session cookie  maybe it’s something like JWT, or weak secret key, or something I could decode. 
 But turns out... 
@@ -19,7 +19,7 @@ Flask uses os.urandom(16) for app.secret_key
 which is random and basically impossible to guess unless you control the server. 
 My mistake la G I should’ve just read the backend code properly from the start.
 
-##What I Found After Reading the Backend
+## What I Found After Reading the Backend
 After checking the source code  I saw something interesting in the /claim route.
 ```js
 cur = db.execute('SELECT claimed FROM redemptions WHERE username=?', (username,))
@@ -43,7 +43,7 @@ Since the code checks if claimed=1 first  then only after that it updates the ba
 there is a small window where I can spam multiple requests fast enough before the server saves claimed=1 to the database.
 SQLite doesn’t handle this by default unless you use special locking or transaction isolation which this code doesn’t have.
 
-##Exploit Steps
+## Exploit Steps
 ![image](https://github.com/user-attachments/assets/9a8a59c0-af40-4ced-ae57-3609dd62ba26)
 •	Register new account - get 1000 balance.
 •	Don’t claim the daily bonus 
