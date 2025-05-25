@@ -16,9 +16,13 @@ Here's the hex values to be copy:
 ```
 After that, save it as flag.hex
 
-We already know that it suppose to be zip file so we shall then convert hex to zip
+We already know that it suppose to be zip file so we shall then rebuild the file from hex to zip
 ```
 xxd -r -p flag.hex flag.zip
+```
+
+the password is there from the challenge description
+```
 unzip -P password flag.zip
 ```
 ![image](https://github.com/user-attachments/assets/c5e7add6-e581-4e21-878c-caedd1efcff6)
