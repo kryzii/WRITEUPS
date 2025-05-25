@@ -15,15 +15,17 @@ Do intercept the POST request to **http://challenge.nahamcon.com:31021/check_que
 
 To change the jwt token, we can use https://jwt.io/ with payload to cut the queue.
 
-After intercepting the /check_queue the response will give us an error that saying the JWT_SECRET for our jwt token is incorrect. 
+After intercepting the **/check_queue** the response will give us an error that saying the JWT_SECRET for our jwt token is incorrect. 
+
+But, in the error it is included the correct *JWT_SECRET*
 
 ```
 "JWT_SECRET":"4A4Dmv4ciR477HsGXI19GgmYHp2so637XhMC"
 ```
 
-So use the JWT_SECRET given and reintercept the request again with a working jwt token.
+So use the *JWT_SECRET* given and change our jwt token and reintercept the request again with the working jwt token. 
 
-Next, be sure to always change to our jwt token to each request such as /purchase and /purchase?html=true
+Next, be sure to always change to our jwt token to each request such as **/purchase** and **/purchase?html=true**
 
 ## Flag
 
