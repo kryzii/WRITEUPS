@@ -34,17 +34,19 @@ Upon visiting the endpoint, we will be redirected and getting error that says:
 
 ![image](https://github.com/user-attachments/assets/52f42408-3aec-41ad-ade8-958843ac2592)
 
-We then need to bruteforce once more time with our current wordlist. But this time, its for our parameter. 
-So, the position for the payload to be bruteforce is:
+We then need to bruteforce one more time with our current wordlist. 
+
+But this time, its for our parameter. So, the position for the payload:
 ```
 GET /fgdwi/?§a§=meow
 ```
 ![image](https://github.com/user-attachments/assets/c554f960-96e2-466d-8852-6e672260dcf3)
 
 Why, does the payload needed to have **?§a§=meow** it's because the error says that missing parameter and not value. 
-So the value could be anything else other than "*meow*" it could be "*dog*" or even "*cat*". Also, fgdwi = debug decrypt by ROT2.
-So for better understanding, After finding out the parameter and it does gave an error that says the value is missing or incorrect. 
-That's when we need to have a correct value for it instead.
+So the value could be anything else other than "*meow*" it could be "*dog*" or even "*cat*". Also, fgdwi = debug, which is encrypted by ROT2.
+
+For better understanding, After finding the right parameter. And the response that we get is an error, for the value such as missing or incorrect. 
+That's only when we need to have a correct value for it instead. 
 
 ## Flag
 
