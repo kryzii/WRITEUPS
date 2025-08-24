@@ -1,6 +1,3 @@
 Joined this ctf as a solo player, after some travel before my internship. 
 
 <img width="906" height="874" alt="image" src="https://github.com/user-attachments/assets/67eccd09-9959-45c9-a066-ba2b801fe6f5" />
-
-<img width="915" height="816" alt="image" src="https://github.com/user-attachments/assets/7e6dc2b0-1021-4d7a-9285-5daee89199a0" />
-
