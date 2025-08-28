@@ -2,7 +2,7 @@
 
 ## Challenge
 
-For this challenge, its the second version from [My First CTF](https://github.com/Kr3yzi/CTF-WRITEUPS/blob/main/NAHAMCON%202025/WEB/MY%20FIRST%20CTF/README.md).
+For this challenge, its the second version from [My First CTF](https://github.com/Kr3yzi/CTF-WRITEUPS/tree/main/2025/NAHAMCON%202025/WEB/MY%20FIRST%20CTF#readme).
 The only difference is we are given wordlist.txt. Same as before, but without the flag.txt endpoint.
 
 ![image](https://github.com/user-attachments/assets/2a7b8d18-0f0f-49be-9960-ea990927c14b)
