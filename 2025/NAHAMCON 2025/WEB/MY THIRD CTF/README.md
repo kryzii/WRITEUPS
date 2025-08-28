@@ -29,7 +29,7 @@ Upon visiting the endpoint, we will be redirected and getting error that says 40
 To bypass, simply bruteforce each of the directories multiple times with our wordlist payload till we got our final url. 
 Here's the payload position for our intruder
 
-![image](https://github.com/user-attachments/assets/5cf2968c-5926-4872-8b6f-1b3a9972856d) ![image](https://github.com/user-attachments/assets/29a3fe34-7cc4-4ed9-a628-89499cb6f8c0) 
+![image](https://github.com/user-attachments/assets/5cf2968c-5926-4872-8b6f-1b3a9972856d) 
 ![image](https://github.com/user-attachments/assets/d8913b91-c459-43b7-b55b-657c23bb211d) ![image](https://github.com/user-attachments/assets/9364655c-f452-4784-a88c-1c12e24d256d)
 
 http://challenge.nahamcon.com:30653/qbhf/oguucig/wrnhq/lewl/
