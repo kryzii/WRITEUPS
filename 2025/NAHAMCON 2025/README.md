@@ -1,4 +1,4 @@
-![46156dcc-c1fe-4268-ac80-95e207056ef1](https://github.com/user-attachments/assets/e9fd4f62-63c4-42a2-bdc2-d802678f3825)
+<img width="700" height="200" alt="0_K74IpAQTf7K7LqGj" src="https://github.com/user-attachments/assets/a7dcf9de-a7c7-4230-bb72-4119c8f02448" />
 
 # Joined this ctf as *"uh"* with **RE:UN1ON** and placed 
 
