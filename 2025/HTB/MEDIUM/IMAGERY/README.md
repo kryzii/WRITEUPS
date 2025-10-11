@@ -3,7 +3,7 @@ title: "Imagery HTB"
 date: 2025-10-11 00:00 +0800
 categories: [Boot2Root]
 tags: [HTB]
-image: "https://github.com/user-attachments/assets/19baa630-e1ae-45b8-b971-4227b811ae05" 
+image: https://github.com/user-attachments/assets/2e016a46-abce-404c-9870-47e4df66c919
 ---
 
 <img width="695" height="235" alt="Screenshot 2025-10-10 022305" src="https://github.com/user-attachments/assets/2e016a46-abce-404c-9870-47e4df66c919" />
