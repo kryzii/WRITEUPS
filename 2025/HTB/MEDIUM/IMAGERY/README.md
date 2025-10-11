@@ -6,6 +6,9 @@ tags: [HTB]
 image: "https://github.com/user-attachments/assets/19baa630-e1ae-45b8-b971-4227b811ae05" 
 ---
 
+<img width="695" height="235" alt="Screenshot 2025-10-10 022305" src="https://github.com/user-attachments/assets/2e016a46-abce-404c-9870-47e4df66c919" />
+
+
 Chained a stored XSS and LFI to access source and credentials, injected a shell via an ImageMagick transform to get RCE, decrypted backups to obtain passwords, and abused the `charcol` backup tool to gain root.
 
 ## Recon
