@@ -1,8 +1,8 @@
 ---
-title: "Imagery HTB"
-date: 2025-10-11 00:00 +0800
+title: "Imagery"
+date: 2025-10-04 00:00 +0800
 categories: [Boot2Root]
-tags: [HTB]
+tags: [HTB,Medium]
 image: https://github.com/user-attachments/assets/2e016a46-abce-404c-9870-47e4df66c919
 ---
 
