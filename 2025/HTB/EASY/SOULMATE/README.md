@@ -2,13 +2,11 @@
 title: "Soulmate"
 date: 2025-10-12 00:00 +0800
 categories: [Boot2Root]
-tags: [HTB,Easy]
+tags: [HTB,Easy,Boot2Root,CrushFTP,CVE-2025-31161,Auth Bypass,Admin Panel,Reverse Shell,Privilege Escalation,Erlang SSH]
 image: https://github.com/user-attachments/assets/b5b67bf0-e932-4491-b8ef-646eb7c7e668
 ---
 
-<img width="701" height="235" alt="image" src="https://github.com/user-attachments/assets/b5b67bf0-e932-4491-b8ef-646eb7c7e668" />
-
-https://labs.hackthebox.com/achievement/machine/1737187/721
+Exploited a CrushFTP auth-bypass to create an admin user, uploaded a web shell to get www-data, discovered credentials in an Erlang start script, SSHed to the local Erlang daemon on 127.0.0.1:2222, dropped into an Erlang shell and used os:cmd(...) to run commands as root and retrieve the flag.
 
 ## Recon
 
@@ -181,7 +179,7 @@ Logged in with the new username and password -> Admin -> User manager -> ben -> 
 
 <img width="1717" height="684" alt="image" src="https://github.com/user-attachments/assets/3a73ca3b-324d-4c7e-83bd-b7cfe57f61ba" />
 
-## shell as www-data
+### shell as www-data
 
 Then we can upload our revshell inside the folder 
 
@@ -301,3 +299,6 @@ Eshell V15.2.5 (press Ctrl+G to abort, type help(). for help)
 "851506a3c8a1cedc8f340d21xxxxxxx7\n"
 (ssh_runner@soulmate)4> 
 ```
+
+[Badge](https://labs.hackthebox.com/achievement/machine/1737187/721)
+
