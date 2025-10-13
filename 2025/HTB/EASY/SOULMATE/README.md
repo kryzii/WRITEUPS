@@ -125,7 +125,7 @@ Then, we found CrushFTP version from the source code *(I wasn't actually sure is
 
 ### CVE-2025-31161 exploit
 
-It straight forward gave us known CVE's for CrushFTP version **< 10.8.4, < 11.3.1** 
+It straight forward gave us known [CVE's for CrushFTP version **< 10.8.4, < 11.3.1**](https://www.exploit-db.com/exploits/52295) 
 
 <img width="809" height="419" alt="image" src="https://github.com/user-attachments/assets/a01a54cb-8870-4d0b-9d1b-306e63a7ae65" />
 
@@ -322,3 +322,4 @@ Eshell V15.2.5 (press Ctrl+G to abort, type help(). for help)
 ```
 
 [Badge](https://labs.hackthebox.com/achievement/machine/1737187/721)
+
