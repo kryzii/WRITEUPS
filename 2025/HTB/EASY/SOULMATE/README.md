@@ -121,7 +121,9 @@ Then, we found CrushFTP version from the source code *(I wasn't actually sure is
 
 <img width="1063" height="387" alt="image" src="https://github.com/user-attachments/assets/7005c7cc-3acd-4981-a5da-f85c7cdbb2c4" />
 
-### CVE-2025-31161 (Auth Bypass)
+## Auth Bypass
+
+### CVE-2025-31161 exploit
 
 It straight forward gave us known CVE's for CrushFTP version **< 10.8.4, < 11.3.1** 
 
@@ -179,7 +181,7 @@ Logged in with the new username and password -> Admin -> User manager -> ben -> 
 
 <img width="1717" height="684" alt="image" src="https://github.com/user-attachments/assets/3a73ca3b-324d-4c7e-83bd-b7cfe57f61ba" />
 
-### shell as www-data
+## Shell as www-data
 
 Then we can upload our revshell inside the folder 
 
@@ -197,15 +199,19 @@ stty raw -echo;fg;
 export TERM=xterm
 ```
 
-### shell as ben
-
 <img width="1705" height="891" alt="image" src="https://github.com/user-attachments/assets/52200bf1-796a-42e5-89b6-a4500ff51719" />
 
-I did multiple of common priv esc checks, but when i look for running processes as root. We could find that there's one unusual commands. 
+I ran the usual local-privilege checks and noticed an unusual root process *(an Erlang escript that starts an Erlang-based SSH daemon)*. 
+
+### Script that exposes erlang ssh  
+
+The script runs as root and exposes an SSH-like interface. 
 
 <img width="1714" height="830" alt="image" src="https://github.com/user-attachments/assets/86eb7a91-7dd8-4c2a-a83b-d2d3709acbe3" />
 
-One we check the configuration file, we can find that there's ben password located.
+It contains a hardcoded ben password, which is a direct local privilege-escalation vector. 
+
+Anyone able to reach the localhost SSH (or execute ssh ben@127.0.0.1 from a local account) can authenticate, drop into the Erlang shell, and execute commands as root.
 
 ```bash
 www-data@soulmate:/$ cat /usr/local/lib/erlang_login/start.escript
@@ -261,11 +267,19 @@ main(_) ->
     end.
 www-data@soulmate:/$ 
 ```
-### shell as root
+
+## Shell as ben
 
 <img width="1319" height="873" alt="image" src="https://github.com/user-attachments/assets/8a30b566-57c4-4f1e-aeb9-942bae700107" />
 
-We scanned open ports with ss and found an SSH service on **port 2222** *(unusual port for SSH)*. Connecting showed an Erlang SSH shell. 
+```bash
+ben@soulmate:/$ cat /home/ben/user.txt 
+4c0de71d51aa06b345df3723fb74xxxx
+```
+
+### Erlang local SSH Shell confirmation
+
+We found an SSH service listening on 127.0.0.1:2222. Connecting showed an Erlang SSH shell. 
 
 Logging in gave an Erlang prompt. From that prompt we ran id and confirmed that we had **root** access
 
@@ -290,6 +304,13 @@ tcp   LISTEN 0      511             [::]:80            [::]:*
 ben@soulmate:/$ nc 127.0.0.1 2222
 SSH-2.0-Erlang/5.2.9
 ^C
+```
+
+## Shell as root
+
+### Connecting to localhost port 2222 (Erlang SSH Shell)
+
+```
 ben@soulmate:/$ ssh ben@127.0.0.1 -p 2222
 ben@127.0.0.1's password: 
 Eshell V15.2.5 (press Ctrl+G to abort, type help(). for help)
@@ -301,4 +322,3 @@ Eshell V15.2.5 (press Ctrl+G to abort, type help(). for help)
 ```
 
 [Badge](https://labs.hackthebox.com/achievement/machine/1737187/721)
-
