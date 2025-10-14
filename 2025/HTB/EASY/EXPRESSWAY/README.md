@@ -1,10 +1,18 @@
 ---
-title: "Expressway"
+title: "HTB: Expressway"
 date: 2025-10-04 00:00 +0800
 categories: [HTB]
-tags: [HTB,Easy,Boot2Root]
+tags: [HTB,Easy,Boot2Root, Ipsec, IKE, PSK, Ike-Scan, PSK-Crack, CVE-2025-32463, Privilege Escalation]
 image: <img width="704" height="243" alt="image" src="https://github.com/user-attachments/assets/fec9267e-7d72-424c-9ee5-83019f040ae6" />
 ---
+
+Discovered ISAKMP on UDP/500 and used ike-scan Aggressive to capture a PSK-derived hash, which was cracked to recover the PSK. Logged in via SSH as user ike, identified sudo 1.9.17 vulnerable to a chroot (-R) local privilege escalation (CVE-2025-32463), and used the PoC to obtain root and retrieve the flag.
+
+## Tools 
+- nmap
+- ike
+- psk-crack
+- searchsploit
 
 ## Recon
 
