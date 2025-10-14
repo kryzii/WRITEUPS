@@ -3,7 +3,7 @@ title: "Expressway"
 date: 2025-10-04 00:00 +0800
 categories: [HTB]
 tags: [HTB,Easy,Boot2Root]
-image: 
+image: <img width="704" height="243" alt="image" src="https://github.com/user-attachments/assets/fec9267e-7d72-424c-9ee5-83019f040ae6" />
 ---
 
 ## Recon
@@ -513,3 +513,5 @@ root
 root@expressway:/# cat /root/root.txt
 14eef9043b50738697c7c41e30xxxxxx
 ```
+
+[Badge](https://labs.hackthebox.com/achievement/machine/1737187/736)
