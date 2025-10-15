@@ -1,8 +1,8 @@
 ---
 title:HTB: Editor
 date: 2025-09-30 00:00 +0800
-categories:[HTB]
-tags:[]
+categories: [HTB]
+tags: []
 image:
 ---
 <img width="696" height="240" alt="Screenshot 2025-10-15 012413" src="https://github.com/user-attachments/assets/e37b5d08-83ab-484b-bc3b-88503d206a55" />
