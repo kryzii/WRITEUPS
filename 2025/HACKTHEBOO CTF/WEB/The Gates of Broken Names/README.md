@@ -25,7 +25,7 @@ View your **own profile**
 
 #### Initial Discovery
 
-There's a possible **[IDOR](https://portswigger.net/web-security/access-control/idor)** vulnerabilities, because we can see its get api request from network logs
+There's a possible **[IDOR](https://portswigger.net/web-security/access-control/idor)** vulnerabilities, because we can see its `GET` api request from network logs
 
 <img width="1493" height="482" alt="image" src="https://github.com/user-attachments/assets/988e3ae6-8db2-4df1-92e4-7c20ecc8c6fc" />
 
