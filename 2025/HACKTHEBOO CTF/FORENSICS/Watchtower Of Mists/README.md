@@ -5,7 +5,7 @@
 
 #### Challenge
 
-The challenge consist of `capture.pcap` file that require us to do network analysis post incidents. And require multiple scenario answers as the flag
+The challenge consist of **[capture.pcap](https://github.com/kryzii/WRITEUPS/blob/main/2025/HACKTHEBOO%20CTF/FORENSICS/Watchtower%20Of%20Mists/forensics_watchtower_of_mists.zip)** file that require us to do network analysis post incidents. And require multiple scenario answers as the flag
 
 Before we start, **unzip** the file and do open the `capture.pcap` with **[Wireshark](https://www.wireshark.org/download.html)** to do further analysis:
 
