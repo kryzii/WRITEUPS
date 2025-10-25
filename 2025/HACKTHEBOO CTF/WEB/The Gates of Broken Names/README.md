@@ -49,7 +49,7 @@ Add response filter `"is_private":1,` this could be if you want to play safe in 
 
 <img width="1473" height="678" alt="image" src="https://github.com/user-attachments/assets/0f1b1273-564b-4487-924c-9ca4cfc7b299" />
 
-But a better regex that directly fetch flag is `HTB\` and be sure to check ``Regex``
+But a better filter should be by using regex that directly fetch flag is `HTB\` and be sure to check ``Regex``
 
 <img width="571" height="191" alt="image" src="https://github.com/user-attachments/assets/c3da76ff-29e8-4082-85a5-ae42b71d3b26" />
 
