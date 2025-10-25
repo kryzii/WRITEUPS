@@ -1,7 +1,7 @@
 ### The Wax-Circle Reclaimed
 #### Description
 
-<img width="509" height="729" alt="image" src="https://github.com/user-attachments/assets/f0ad3a80-236b-475d-8cf2-cdf117789013" />
+<img width="509" height="250" alt="image" src="https://github.com/user-attachments/assets/17ff0e70-25df-4d29-ad4e-25c98479ec30" />
 
 #### Challenge
 
