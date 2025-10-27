@@ -11,7 +11,7 @@ image: https://github.com/user-attachments/assets/39ef2ef3-ed80-4c56-98c4-f55b65
 
 ## Description
 
-> Hostsbusters consists of **8 total flags** that we should find throughout the machine. But, I wasn't really focusing on solving most of the questions to gain the flag. So some of the flag was might not be in my writeup because i was trying to gaining root access *(Akmal was the one trying to solve this challenge, so i just continue the rest)*. But we still unable to solve one challenge for this machine. *(I went to sleep after solving this question and woke up only after the CTF's finished.)* 
+> Hostsbusters is a machine consists of **8 total flags**. It consist of 2 lateral movement before we can get root. So some of the flag was might not be in my writeup because i was tasked to gaining root access *(Akmal was the one trying to solve this challenge initially, so i just continuing the rest)*. But we still unable to solve one challenge for this machine. *(I went to sleep after gained root and woke up only after the CTF's finished.)* 
 
 ## Shell as gh0st404
 
@@ -435,8 +435,24 @@ root
 
 <img width="495" height="730" alt="image" src="https://github.com/user-attachments/assets/1fd24944-74a9-4b32-a35a-82906f3ca20c" />
 
+### Discovery
 
-### Transfering the flag to our machine
+We find and image located at **/root**
+```
+/home/mirveal/ # cd /root
+~ # ls -lah
+total 76K    
+drwx------    1 root     root        4.0K Oct 26 17:58 .
+drwxr-xr-x    1 root     root        4.0K Oct 26 17:43 ..
+-rw-------    1 root     root         131 Oct 26 18:01 .ash_history
+-rw-r--r--    1 root     root       61.2K Sep 17 02:04 IMG_202509161627.jpg
+```
+But, after a while. No ways to view the flag directly. So might need to transfer to our machine. 
+
+### .jpg file transfered with b64
+
+This trick is basically **encode** the image as `base64`, copy the strings to our machine and decode back with `.jpg` to our machine
+
 ```
 ~ # base64 -w0 /root/IMG_202509161627.jpg > /tmp/img.b64
 ~ # img.b64
