@@ -70,6 +70,8 @@ Here's what we need to input once connected to pwn this machine
 
 > 1
 
+> 40
+
 > AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAw3th4nds
 
 > 3
