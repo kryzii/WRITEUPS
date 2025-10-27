@@ -3,8 +3,11 @@ title: "Hostsbusters (B2R) : DeadFace CTF 2025"
 date: 2025-10-25 00:00 +0800
 categories: [CTF]
 tags: [CTF, B2R]
-image: https://github.com/user-attachments/assets/c64fe30a-6577-42fc-81d3-92cbc562afe8
+image: https://github.com/user-attachments/assets/39ef2ef3-ed80-4c56-98c4-f55b65da65b6
 ---
+
+<img width="1024" height="777" alt="deadface-2023-banner-blog" src="https://github.com/user-attachments/assets/39ef2ef3-ed80-4c56-98c4-f55b65da65b6" />
+
 
 ## Description
 
