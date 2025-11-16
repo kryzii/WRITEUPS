@@ -2,16 +2,14 @@
 title: "HTB: CodePartTwo"
 date: 2025-10-06 00:00 +0800
 categories: [HTB]
-tags: [HTB,Easy]
+tags: [HTB,Easy, CVE-2024-28397, File Misconfiguration, js2py]
 image: https://github.com/user-attachments/assets/0bb52df1-3552-425a-bbb5-42a7bde1cb38
 ---
 
+
 <img width="872" height="339" alt="image" src="https://github.com/user-attachments/assets/0bb52df1-3552-425a-bbb5-42a7bde1cb38" />
 
-
-## Tools
-- nmap
-- 
+Found a web app that runs JavaScript, and spotted a vulnerable js2py version. Using that flaw we got a shell as the app user, found credentials in the database to become marco, and then used a backup tool that ran as root to read the final flag.
 
 ## Recon 
 
@@ -52,7 +50,7 @@ In the first phase of recon, i would usually start to look for any known cve's, 
 We find that it actually used `js2py=0.74` based on the **requirements.txt** from source code given.
 
 
-## CVE-2024-28397
+### CVE-2024-28397
 
 ```
 ┌──(kali㉿kali)-[~/Desktop/HTB/CodePartTwo]                                                                                                                                                                                                
@@ -244,7 +242,7 @@ Setup a listener
 ➤  🏠 Main Menu (m) 💀 Payloads (p) 🔄 Clear (Ctrl-L) 🚫 Quit (q/Ctrl-C)
 ```
 
-## shell as app
+## Shell as app
 ```
 ┌──(kali㉿kali)-[~/Desktop/HTB/CodePartTwo]
 └─$ penelope
@@ -422,7 +420,7 @@ optional arguments:
   --check-config-file   Check if config file is valid
 ```
 
-because this is public server, it's better for me to exploit the conf file through **/tmp**, that's why we will copy the `.conf` as we saw when listing files from marco folder  
+because this is public free machine, it's better for me to exploit the conf file through **/tmp**, that's why we will copy the `.conf` as we saw when listing files from marco folder  
 ```
 marco@codeparttwo:~$ cp npbackup.conf /tmp/mal.conf
 ```
@@ -572,7 +570,7 @@ global_options:
   auto_upgrade_host_identity: ${MACHINE_ID}
   auto_upgrade_group: ${MACHINE_GROUP}
 ```
-List the snapshots to make sure its correctly taken:
+List the snapshots to make sure its taken correctly:
 ```
 marco@codeparttwo:~$ sudo /usr/local/bin/npbackup-cli -c /tmp/mal.conf -s
 2025-11-16 15:02:51,855 :: INFO :: npbackup 3.0.1-linux-UnknownBuildType-x64-legacy-public-3.8-i 2025032101 - Copyright (C) 2022-2025 NetInvent running as root
