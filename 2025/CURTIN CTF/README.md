@@ -197,7 +197,12 @@ This question brought me closer to GPT more than anyone knows. At some point it 
 
 <img width="829" height="689" alt="image" src="https://github.com/user-attachments/assets/2b0058af-6327-47ee-9923-de65a52d76a6" />
 
-At the beginning, the website only showed us the /help page, which pointed to the /add endpoint. After intercepting the requests, we discovered there were more hidden routes like /suggest and /log. Finding those felt promising, but even with the extra endpoints nothing really revealed what the backend was doing or how the challenge was meant to be solved.
+At the beginning, the website only showed us the `/help` page, which pointed to the /add endpoint. After intercepting the requests, we discovered there were more hidden routes like /suggest and /log. Finding those felt promising, but even with the extra endpoints nothing really revealed what the backend was doing or how the challenge was meant to be solved.
+
+- /help (the typical manual book i would say)
+- /list (list of notes printed in logs that only show the date and time)
+- /add [anything] (add new notes or anything, once added it will give us the notes id in number that will add up everytime new notes is being written)
+- /suggest (this one i was literally unclear how it suppose to be working, i thought it was some kind of replaying the notes however. When i feed it with the note it just, gave me something like **"Short note — try expanding with context, why it matters, and next steps."** - _EVEN AFTER I GAVE A WHOLE 10 PARAGRAPH OF LOREM IPSUM T_T._ Im begging someone please educate me more on this one!!) 
 
 <img width="838" height="411" alt="image" src="https://github.com/user-attachments/assets/fd612a21-c33c-432d-bd3c-22121a596101" />
 
