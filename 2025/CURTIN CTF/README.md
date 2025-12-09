@@ -3,7 +3,7 @@ title: "Curtin CTF 2025"
 date: 2025-12-07 00:00 +0800
 categories: [CTF]
 tags: []
-image: https://github.com/user-attachments/assets/baf15847-33f5-4fb9-9913-338845122179
+image: https://github.com/user-attachments/assets/e146c663-6309-45f2-be74-732fbbf3ddc6
 ---
 
 I will update more on some other challenges i sovled which in misc, forensic and osint category!
@@ -375,3 +375,7 @@ And honestly, it’s tiring to lose multiple CTFs in just two weeks in a row, es
 Even though we didn’t win any prizes, I still walked away with something valuable. Placements come and go, but the lessons stay. What matters most is the time spent learning and playing together with my teammates. We gave it our best, and even if the scoreboard didn’t end in our favor, the experience itself was worth it.
 
 At least, now I know that even when I miss robots.txt, forget to patch, or start too slow, I can still laugh at myself and keep going. Next time, I’ll come back sharper… or at least with fewer dumb mistakes. 😅
+
+<!--
+![CTF-2025-1260x630](https://github.com/user-attachments/assets/e146c663-6309-45f2-be74-732fbbf3ddc6)
+-->
