@@ -8,9 +8,9 @@ image: https://github.com/user-attachments/assets/e146c663-6309-45f2-be74-732fbb
 
 I will update more on some other challenges i sovled which in misc, forensic and osint category!
 
-# Web 
+## Web 
 
-## Agent Jonathan Walkins Trafalgar
+### Agent Jonathan Walkins Trafalgar
 
 The web app is styled like a spy‑themed mission interface. It greets you as an agent and provides a text area to paste a JWT, with two buttons: one to `Unlock Vault` and another to `Get Public Key`. The intel box reveals that the vault uses **RS256** for legitimate tokens and exposes a **/public-key** endpoint.
 
@@ -87,13 +87,13 @@ I spent time overthinking different claim names, but the simplest one worked. Le
 
 <img width="1097" height="697" alt="image" src="https://github.com/user-attachments/assets/83433181-cf97-476f-974a-c92ce2b41219" />
 
-### Flag:
+#### Flag
 
 ```
 CURTIN_CTF{alg_c0nfus10n_w1th_publ1c_k3y_1s_c00l}
 ```
 
-## Adventures of Harald Part 1
+### Adventures of Harald Part 1
 
 In the home page, the web app brought us to another subdirectories which located at **/library/** that will let us read any books.
 
@@ -109,12 +109,12 @@ We simply redirect from reading the book to read the flag.txt that located in th
 
 <img width="1477" height="422" alt="image" src="https://github.com/user-attachments/assets/0447650f-db3e-48e5-9b75-c82eb0479cb8" />
 
-### Flag:
+#### Flag
 ```
 CURTIN_CTF{Anc13nt_S3cr3ts_&_F0rb1dd3n_L0r3!}
 ```
 
-## Adventures of Harald Part 2
+### Adventures of Harald Part 2
 
 This had the same ui as **Adventures of Harald Part 1**, So it should be a little harder.
 
@@ -138,12 +138,12 @@ To test how the filter works, I tried doubling the dots and slashes to see if it
 
 <img width="1531" height="546" alt="image" src="https://github.com/user-attachments/assets/c2269e7a-7de9-47cf-9547-bf12e1640ce3" />
 
-### Flag:
+#### Flag
 ```
 CURTIN_CTF{The_Owl_S33s_Y0ur_Cur10s1ty!}
 ```
 
-## Adventures of Harald Part 3
+### Adventures of Harald Part 3
 
 This had the same ui as **Adventures of Harald Part 1** and **Adventures of Harald Part 2**, And this one is the last one. It should be the one that would be impossible. 
 
@@ -186,14 +186,14 @@ The filter is weak because it only removes ../ with forward slashes. It doesn’
 
 <img width="1119" height="379" alt="image" src="https://github.com/user-attachments/assets/57d89490-5024-4a38-998c-f8d64d77a095" />
 
-### Flag:
+#### Flag
 ```
 CURTIN_CTF{The_L4byr1nth_Unf0lds_B4_Y0u!}
 ```
 
 <img width="1512" height="447" alt="image" src="https://github.com/user-attachments/assets/a3ffd0c9-d25a-42aa-83cc-380e28d8e052" />
 
-## 0(nlog4)
+### 0(nlog4)
 
 This question brought me closer to GPT more than anyone knows. At some point it felt less like solving a CTF and more like venting to a friend who just nods along while you complain. And in the end, after all that back‑and‑forth, the solution wasn’t some genius breakthrough. It was me Googling an old writeup like a student copying homework the night before class.
 
@@ -228,11 +228,12 @@ So the key point is that the challenge was not about the classic Log4Shell explo
 
 <img width="1877" height="706" alt="Screenshot 2025-12-08 121308" src="https://github.com/user-attachments/assets/8c9fc644-dae1-4d6b-9b85-45d7f2a3c117" />
 
+#### Flag
 ```
 CURTIN_CTF{l0g4j_rce_v1a_jnd1_1nj3ct10n}
 ```
 
-## Brailley
+### Brailley
 
 The Brailley web app takes a city name, encodes it into a numeric sequence using a custom alphabet mapping, sends that sequence to the backend, and the backend returns the location details of the nearest blind association center.
 
@@ -325,13 +326,11 @@ Next, I turned to GPT, hoping for help. Instead, it misled me further.
 
 Finally, I relied on Google dorking as my last resort. That’s when I found the **[writeups](https://github.com/w181496/CTF/blob/master/googlectf-2019-qual/bnv/README_en.md)** I needed.
 
-However i would explain this from my understanding, application/json if being misconfigured can led to application/xml which from this could lead to another things which is XXE injection
+However i would explain this from my understanding:
 
-So we would look for **PayloadsAllTheThings** to find classis XXE payload to retrive files, However we would try with confirmed there to verify our POC
+Start by switching the request from `application/json` to `application/xml` to see if the server accepts **XML input**. Then add a simple DOCTYPE declaration to confirm whether **DTDs are allowed**. Next, try a harmless internal entity to check if entity expansion works. After that, attempt an external entity such as **file:///etc/passwd** to see if external resolution is enabled. If direct output is not shown, move on to **blind XXE techniques** like `error-based` or `out-of-band` methods to confirm data leakage. Only after confirming each step should you proceed to the final payload for exploitation.
 
-Start by switching the request from `application/json` to `application/xml` to see if the server accepts **XML input**. Then add a simple DOCTYPE declaration to confirm whether **DTDs are allowed**. Next, try a harmless internal entity to check if entity expansion works. After that, attempt an external entity such as file **:///etc/passwd** to see if external resolution is enabled. If direct output is not shown, move on to blind XXE techniques like error-based or out-of-band methods to confirm data leakage. Only after confirming each step should you proceed to the final payload for exploitation.
-
-The final payload works by combining three parts: first an external entity to read a local file like `/flag`, then a parameter entity to embed that file’s contents, and finally an error-based expansion that forces the parser to leak the data through its error message. This chain confirms the vulnerability and allows exploitation.
+The final payload works by combining three parts: first an external entity to read a local file like `/flag`, then a parameter entity to embed that file’s contents, and finally an **error-based** expansion that forces the parser to leak the data through its error message. This chain confirms the vulnerability and allows exploitation.
 
 ```
 POST /api/search HTTP/1.1
@@ -354,23 +353,24 @@ Content-Length: 327
 
 <img width="1285" height="577" alt="image" src="https://github.com/user-attachments/assets/7af038f3-5770-46e9-bc7e-b134e83bdd2f" />
 
+#### Flag
 ```
 CURTIN_CTF{⠞⠓⠼⠉_⠼⠚⠝⠑_⠺⠓⠕_⠋⠑⠼⠉⠇_⠼⠁⠞_⠁⠇⠇_⠺⠊⠞⠓⠼⠚⠥⠞_⠎⠑⠑⠼⠁⠝⠛_⠊⠞_⠼⠙⠇⠇}
 ```
 
-# Yaps:
+## Yap-yap-yap
 
 This CTF was a long ride. We played hard, learned a lot, and felt both happy and sad along the way.
 
 Near the end, we @BlueSmurf were holding 7th place. That spot mattered because it was the last prize spot. If I had solved the last web challenge, we could have stayed there. But in the last five minutes, we dropped from 7th to 10th. The organizers said no flag hoarding, but it still happened. I don’t want to show too many screenshots or complain too much, but it hurt.
 
-What made me sad was not just losing the place, but seeing how much time my teammates Afiq and Akmal gave to this. We stayed strong all event, moving between 1st and 7th place, fighting to keep our spot. Losing it at the end felt heavy.
+What made me sad was not just losing the place, but seeing how much time my teammates Afiq and Akmal gave to this. We stayed strong all event, moving between 1st and 7th place, fighting to keep our spot for the whole 24 hours. Losing it at the end felt heavy.
 
-It was also very tiring. On Friday evening I joined an online CTF, then at night StoutCTF started. I played from 10pm until 8:30am Saturday without sleep. I think I slept a little, then woke up around 11am to continue CurtinCTF. We kept pushing and stayed near the top until the last moment when flag hoarding knocked us down.
+It was also very tiring. On Friday evening I joined an online CTF, then at night StoutCTF started. I played from 10pm until 8:30am Saturday. I think I slept a little, then woke up around 11am to continue CurtinCTF. We kept pushing and stayed near the top until the last moment when flag hoarding knocked us down.
 
 <img width="1523" height="594" alt="image" src="https://github.com/user-attachments/assets/1e6e6575-454c-4964-98c0-951450df2599" />
 
-And honestly, it’s tiring to lose multiple CTFs in just two weeks in a row, especially after getting so close to prizes so many times. SherpaCTF slipped away because of my dumb careless mistake — I didn’t even check robots.txt. IBOH Stage 2 attack and defence was another heartbreak, dropping from 2nd to 7th because I didn’t patch fast enough. Then IGOH Stage 2, where I ended up 13th and played really bad. I started very, very slow, and by the time I tried to catch up it was already too late.
+And honestly, it’s tiring to lose multiple CTFs in multiple weeks in a row, especially after getting so close to prizes so many times. SherpaCTF slipped away because of my dumb careless mistake that I didn’t even check robots.txt. IBOH Stage 2 attack and defence was another heartbreak, dropping from 2nd to 7th because I didn’t patch fast enough. Then IGOH Stage 2, where I ended up 13th and played really bad. I started very, very slow, and by the time I tried to catch up it was already too late.
 
 Even though we didn’t win any prizes, I still walked away with something valuable. Placements come and go, but the lessons stay. What matters most is the time spent learning and playing together with my teammates. We gave it our best, and even if the scoreboard didn’t end in our favor, the experience itself was worth it.
 
