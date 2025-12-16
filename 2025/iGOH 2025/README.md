@@ -35,7 +35,7 @@ https://www.synacktiv.com/publications/playing-with-imagetragick-like-its-2016
 
 <img width="950" height="376" alt="image" src="https://github.com/user-attachments/assets/19189df8-d48e-4d8c-b6bd-0ffa76c1dc96" />
 
-We can use `.svg` and have the payload inside. But the payload still won't work, ChatGPT deepened my understanding. It’s because there’s no custom policy override from here: 
+We can use `.svg` and have the payload inside. But the payload still won't work,. It’s because there’s no custom policy override from here: 
 
 ```
     try:
@@ -50,7 +50,7 @@ That’s why its using ImageMagick default security policy that block MSL:
 
 <img width="894" height="406" alt="image" src="https://github.com/user-attachments/assets/fd1aa926-e77a-40ee-b17c-93408307b34c" />
 
- We can't use .msl is blocked. That’s why we altered the payload to use `.txt` instead: 
+Meaning we can't use `.msl`, It is blocked. That’s why we altered the payload to use `.txt` instead: 
 
 ```
 <?xml version="1.0" standalone="no"?>
@@ -68,6 +68,8 @@ Save it as .svg and upload, and we will get flag as .png file format
 <img width="452" height="209" alt="image" src="https://github.com/user-attachments/assets/72a8bb1a-c2b6-409f-903e-f33b90cb334f" />
 
 Flag: `igoh25{1a883d1f05f78b4c93286f17f1039a98}`
+
+
 
 ## top tier blacklist
 
@@ -117,7 +119,5 @@ Breaking it down:
 4. `f(u)` - Make the request with our cookie.
 
 <img width="742" height="711" alt="image" src="https://github.com/user-attachments/assets/5726fdae-059c-48dc-b02b-8a3b47b6d637" />
-
-
 
 Flag: `igoh25{444d4ca034e4ea2a07aee37508a5df0e}`
