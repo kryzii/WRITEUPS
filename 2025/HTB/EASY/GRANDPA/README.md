@@ -15,6 +15,7 @@ My second Windows box on HTB, which deepened my understanding of Windows privile
 - nmap
 - searchsploit
 - davtest
+- penelope
 - impacket-smbserver
 - churrasco.exe
 - nc.exe
