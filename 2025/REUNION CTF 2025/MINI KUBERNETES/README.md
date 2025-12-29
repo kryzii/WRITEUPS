@@ -1,5 +1,6 @@
 <img width="256" height="256" alt="image" src="https://github.com/user-attachments/assets/a4cb4727-3efc-4e95-9ce4-7bc0dc111128" />
 
+<img width="256" height="128" alt="530627898-a4cb4727-3efc-4e95-9ce4-7bc0dc111128" src="https://github.com/user-attachments/assets/0e0ebded-1070-4b2c-9563-e06d2fc499c8" />
 
 ## Mini Kubernetes
 
