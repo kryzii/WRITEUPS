@@ -10,6 +10,8 @@ image: <img width="975" height="548" alt="image" src="https://github.com/user-at
 
 This CTF focused heavily on digital forensics, malware analysis, incident response, and reverse engineering. The challenges involved analyzing compromised systems, memory dumps, malicious documents, and various attack techniques including C2 communication, credential dumping, and persistence mechanisms.
 
+<img width="1080" height="1080" alt="image" src="https://github.com/user-attachments/assets/1b6b71aa-e3a2-4bb1-b2a6-1f9631765456" />
+
 The NexSec 2025 Intervarsity Cyber Forensics Challenge was held from December 12-14, 2025. Our team **NoobMaster#542656942** (zeqzoq, 4ry, me) participated and achieved **Top 10** placement. Due to a schedule conflict, we withdrew from the final round scheduled for December 18-19.
 
 ## Table of Contents
