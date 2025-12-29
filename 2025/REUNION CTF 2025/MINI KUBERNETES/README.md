@@ -1,3 +1,6 @@
+<img width="256" height="256" alt="image" src="https://github.com/user-attachments/assets/a4cb4727-3efc-4e95-9ce4-7bc0dc111128" />
+
+
 ## Mini Kubernetes
 
 This CTF involves exploiting a Kubernetes misconfigurations to capture 3 flags.
