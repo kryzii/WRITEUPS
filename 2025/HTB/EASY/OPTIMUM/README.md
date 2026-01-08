@@ -1,8 +1,8 @@
 ---
 title: "HTB: Optimum [Easy]"
-date: 2025-01-07 00:00 +0800
+date: 2026-01-07 00:00 +0800
 categories: [HTB]
-tags: [HTB, Easy, Metasploit, Windows Server]
+tags: [HTB, Easy, Windows, Web, PrivEsc, RCE, Metasploit, PowerShell, Sherlock, Empire, Nishang, CVE-2014-6287, CVE-2016-0099]
 image: https://github.com/user-attachments/assets/2211926e-985e-447e-a3c9-3ab451fcce0b
 ---
 
@@ -406,7 +406,7 @@ optimum\kostas
 
 ## Privilege Escalation
 
-### Enumeration
+### Shell as kostas
 
 We can find user flag from user **"kostas\Desktop"** directory:
 ```
@@ -430,6 +430,8 @@ C:\Users\kostas\Desktop>type user.txt
 type user.txt
 dbf90e554885c75f0111d970f1a95d18
 ```
+### Enumeration
+
 However, we required to escalate our privilege to system to access root flag.
 ```
 C:\Users\kostas\Desktop>cd ../..
@@ -459,7 +461,7 @@ C:\Users>
 
 ### Local Exploit Suggester
 
-Next step? If we are using metasploit framework. Of course, Local Suggester is the easier way:
+Next step? If we are using metasploit framework. Of course, `local_exploit_suggester` is the easier way:
 ```
 C:\Users>^Z
 Background channel 2? [y/N]  y
@@ -549,7 +551,7 @@ msf post(multi/recon/local_exploit_suggester) >
 ```
 ### MS16-032 via Metasploit
 
-Ive tried multiple but one of it that work for me is `exploit/windows/local/ms16_032_secondary_logon_handle_privesc`:
+Ive tried most but one of them that worked for me `exploit/windows/local/ms16_032_secondary_logon_handle_privesc`:
 
 Here's the explaination from my Claude:
 > Most exploits failed because they were UAC bypasses (need admin group) or had validation issues. MS16-032 worked because it's a true privilege escalation from low-priv user → SYSTEM, which is exactly what you needed. It's one of the most reliable Windows local privesc exploits for Server 2012 R2!
