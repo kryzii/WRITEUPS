@@ -2,17 +2,23 @@
 
 <img width="619" height="800" alt="image" src="https://github.com/user-attachments/assets/cc8bc682-8db9-417b-858d-dc8e4fac3629" />
 
-We are given an instance that had n8n runnning. Once, authenticated. We're being greet with n8n critical **1.119.0 Version** which could lead to RCE. 
+We are given an instance that had **[n8n](https://n8n.io/)** runnning. 
+
+> n8n is an open-source, visual workflow automation tool that lets users connect different apps and services to automate repetitive tasks, data movement, and complex processes without extensive coding. It uses a node-based system on a drag-and-drop canvas, allowing technical and non-technical users to build intricate integrations, from simple data syncs to advanced AI-powered workflows, with options for self-hosting or using their cloud service 
+
+Once, authenticated. We're being greet with n8n critical **1.119.0 Version** which could lead to known RCE. 
 
 <img width="1912" height="958" alt="image" src="https://github.com/user-attachments/assets/942a40cb-c665-4376-84c0-8bb51de32b93" />
 
+<img width="676" height="485" alt="image" src="https://github.com/user-attachments/assets/0171ca9b-8b64-4c1b-9911-f7193290ee40" />
+
 Here's more about **[CVE-2025-68613](https://github.com/wioui/n8n-CVE-2025-68613-exploit)**. So let's proceed in exploiting. First, we need to create a new workflow. However in our case, we already given `Project Plus Ultra`. 
+
+Click the **workflow**, open **node panel** and add `Edit Fields (Set)` nodes.
 
 <img width="1612" height="601" alt="image" src="https://github.com/user-attachments/assets/32f0454d-8b40-4cdd-b7f9-c0a9b058cef7" />
 
 <img width="1557" height="862" alt="image" src="https://github.com/user-attachments/assets/f113644a-d871-4e9f-a433-663fb3988b24" />
-
-Click the **workflow**, open **node panel** and add `Edit Fields (Set)` nodes.
 
 <img width="506" height="404" alt="image" src="https://github.com/user-attachments/assets/166a781c-8436-44a1-873c-744684e1d4bf" />
 
@@ -24,8 +30,7 @@ The input form of the value is where we would inject our payload.
 
 <img width="1248" height="870" alt="image" src="https://github.com/user-attachments/assets/48624fdb-1b49-45c5-be24-28e222b07ab5" />
 
-We verified the exploit is working. I then do a reverse shell connection that ive generate from **[revshells.com](https://www.revshells.com/)**. Don't forget to setup our listener to be publicly accessible. Here's how:
-
+We verified the exploit is working. I then do a reverse shell connection that ive generate from **[revshells.com](https://www.revshells.com/)**. Don't forget to setup our listener to be publicly accessible. Here's our listener:
 ```
 penelope.py -p 4444 
 ```
