@@ -1,4 +1,7 @@
-<img width="754" height="273" alt="image" src="https://github.com/user-attachments/assets/a6089ddb-b74e-49ea-9843-47cbf45a0387" />
+<img width="220" height="204" alt="image" src="https://github.com/user-attachments/assets/24bfac65-58c3-4620-9849-a2b1c7419ba8" />
+
+We joined CYNX CTF 2026 and solved challenges from both Boot2Root and Web categories.
+This writeup includes exploiting react2shell and a vulnerable n8n instance, both leading to remote code execution and full system compromise.
 
 ## B2R - r007
 
