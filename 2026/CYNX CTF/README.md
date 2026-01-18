@@ -153,6 +153,10 @@ User input was rendered directly inside a template engine. Because of this, temp
 
 SSTI is exploitable. So we can find payload that will help us with **[RCE](https://swisskyrepo.github.io/PayloadsAllTheThings/Server%20Side%20Template%20Injection/Python/#exploit-the-ssti-by-calling-ospopenread)**. 
 
+<img width="1446" height="685" alt="Screenshot 2026-01-18 202752" src="https://github.com/user-attachments/assets/6ca35543-ea73-4249-bdff-c908305c4f7a" />
+
+<img width="1479" height="824" alt="Screenshot 2026-01-18 202809" src="https://github.com/user-attachments/assets/9788d2b4-3d9f-4c39-bca1-699cabfff4f3" />
+
 <img width="1507" height="790" alt="Screenshot 2026-01-18 202835" src="https://github.com/user-attachments/assets/652bbf6a-fc78-4679-80a4-3b5a70efa1d1" />
 
 <img width="1264" height="829" alt="Screenshot 2026-01-18 202905" src="https://github.com/user-attachments/assets/d281e996-f5f8-49fb-9fab-564cad76684b" />
