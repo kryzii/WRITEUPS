@@ -1,4 +1,4 @@
-<img width="1556" height="940" alt="Screenshot 2026-01-18 201654" src="https://github.com/user-attachments/assets/094cc301-028b-4133-937f-03c6a6c2f234" /><img width="754" height="273" alt="image" src="https://github.com/user-attachments/assets/a6089ddb-b74e-49ea-9843-47cbf45a0387" />
+<img width="754" height="273" alt="image" src="https://github.com/user-attachments/assets/a6089ddb-b74e-49ea-9843-47cbf45a0387" />
 
 ## B2R - r007
 
