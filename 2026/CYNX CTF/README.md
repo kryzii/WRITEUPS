@@ -1,3 +1,5 @@
+<img width="754" height="273" alt="image" src="https://github.com/user-attachments/assets/a6089ddb-b74e-49ea-9843-47cbf45a0387" />
+
 ## PLUS ULTRA!!!
 
 <img width="619" height="800" alt="image" src="https://github.com/user-attachments/assets/cc8bc682-8db9-417b-858d-dc8e4fac3629" />
