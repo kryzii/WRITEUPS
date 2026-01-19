@@ -3,10 +3,10 @@ title: "HTB: Netmon [Easy]"
 date: 2026-01-19 00:00 +0800
 categories: [HTB, Easy]
 tags: [HTB, Easy, Windows, CVE-2018-9276, RCE]
-image: https://github.com/user-attachments/assets/659c3ff1-813e-4474-9389-e2ca97728139
+image: https://github.com/user-attachments/assets/d08cabbb-b011-4ae0-9f87-fdc54d9e5620
 ---
 
-<img width="878" height="346" alt="image" src="https://github.com/user-attachments/assets/659c3ff1-813e-4474-9389-e2ca97728139" />
+<img width="878" height="346" alt="Screenshot 2026-01-19 173221" src="https://github.com/user-attachments/assets/d08cabbb-b011-4ae0-9f87-fdc54d9e5620" />
 
 <img width="1599" height="154" alt="image" src="https://github.com/user-attachments/assets/362ef4b8-ac2f-40a9-a72f-812e0fb59d25" />
 
